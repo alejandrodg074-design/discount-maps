@@ -125,10 +125,16 @@ describe('safeNextForRole', () => {
     expect(safeNextForRole('/empresa/inicio', 'consumer')).toBe('/mapas');
   });
 
-  it.each([null, '', 'https://evil.test', '//evil.test', '/\\evil.test'])(
-    'rejects %p',
-    (value) => {
-      expect(safeNextForRole(value, 'consumer')).toBe('/mapas');
-    },
-  );
+  it.each([
+    null,
+    '',
+    'https://evil.test',
+    '//evil.test',
+    '/\\evil.test',
+    '/\t/evil.test',
+    '/\n/evil.test',
+    '/\r/evil.test',
+  ])('rejects %p', (value) => {
+    expect(safeNextForRole(value, 'consumer')).toBe('/mapas');
+  });
 });

@@ -22,8 +22,13 @@ export interface StartTrialResult {
 export async function startTrialAction(
   input: CardSubmission,
 ): Promise<StartTrialResult> {
-  const { userId, email } = await getSession();
+  const { userId, email, role } = await getSession();
   if (!userId) return { error: 'Inicia sesión para continuar.' };
+  // One app serves every role: server actions can be invoked from any page,
+  // so subscriptions stay consumer-only here, not just in proxy.ts.
+  if (role === 'business') {
+    return { error: 'La suscripción es solo para cuentas de persona.' };
+  }
   if (!email) return { error: 'Tu cuenta no tiene un correo verificado.' };
   if (await getOwnSubscription()) redirect('/mapas');
 

@@ -55,10 +55,12 @@ Password change (`changePasswordAction` in the consumer and merchant `cuenta/act
 
 - Server actions in `src/app/auth/actions.ts`: `loginAction`, `signupAction` (consumer, `/registro`), `businessSignupAction` (merchant, `/empresa/registro`; lands on `/empresa/onboarding`), `googleAction` (callback `next=/inicio`), `signOutAction`. They validate with zod from `@org/domain`, return `AuthActionState` (`{ error, fieldErrors, values }`) and `redirect()` on success.
 - `next` query param → hidden input → `safeNextForRole(next, role)`: a same-app relative path the role may open, else the role's home. `/login` and `/registro` link to `/empresa/registro`; the landing `/` offers "Soy persona" (→ `/login`) and "Soy empresa" (→ `/empresa`).
-- `auth/callback/route.ts` exchanges the OAuth / email-confirmation code and redirects to a validated `next`.
+- `auth/callback/route.ts` exchanges the OAuth / email-confirmation code and redirects to `safeNextForRole(next, role)` (same rule as `loginAction`: same-origin path inside the user's area, else the role home; control characters and backslashes are rejected).
 - Sign-up without a session (email confirmation on) redirects to `/login?mensaje=confirma`.
 
 ## Gotchas
+
+- One app serves every role, and a server action can be invoked from any page (the proxy only gates page URLs). Actions that only make sense for one role must check it themselves: `startTrialAction` and `updateCardAction` refuse `business` accounts; merchant actions go through `getOwnBusiness()` / role checks.
 
 - `getClaims()` is local verification: deleted users keep a valid token until expiry.
 - Server Components that call `createServerSupabase()` become dynamic automatically; add `export const dynamic = 'force-dynamic'` on pages that must never be cached (admin, coupon list).

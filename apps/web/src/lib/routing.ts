@@ -93,16 +93,24 @@ export function gateRedirect(
  */
 export function safeNextForRole(value: unknown, role: UserRole | null): string {
   const home = homeForRole(role);
+  // Control characters and backslashes are stripped or rewritten by URL
+  // parsers ("/\t/evil.com" becomes "//evil.com"): reject them outright.
   if (
     typeof value !== 'string' ||
     !value.startsWith('/') ||
-    value.startsWith('//') ||
-    value.startsWith('/\\')
+    /[\u0000-\u001f\u007f\\]/.test(value)
   ) {
     return home;
   }
-  const pathname = value.split(/[?#]/)[0];
-  return gateRedirect(pathname, { signedIn: true, role }) === null
-    ? value
+  const base = 'http://same-origin.invalid';
+  let url: URL;
+  try {
+    url = new URL(value, base);
+  } catch {
+    return home;
+  }
+  if (url.origin !== base) return home;
+  return gateRedirect(url.pathname, { signedIn: true, role }) === null
+    ? `${url.pathname}${url.search}${url.hash}`
     : home;
 }
