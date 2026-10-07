@@ -1,5 +1,5 @@
 /**
- * Contact channels shown on the "Contacto" page of both apps.
+ * Contact channels shown on the "Contacto" pages (consumer and merchant).
  * Handles provided by the owner on 2026-09-22 (no WhatsApp line yet: add an
  * entry with `href: 'https://wa.me/57…'` when one exists).
  */

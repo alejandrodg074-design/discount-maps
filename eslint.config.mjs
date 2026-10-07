@@ -54,6 +54,15 @@ export default [
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:people'],
             },
             {
+              // The single app (apps/web) serves consumers, merchants and admins.
+              sourceTag: 'scope:app',
+              onlyDependOnLibsWithTags: [
+                'scope:shared',
+                'scope:people',
+                'scope:business',
+              ],
+            },
+            {
               sourceTag: 'scope:business',
               onlyDependOnLibsWithTags: ['scope:shared', 'scope:business'],
             },

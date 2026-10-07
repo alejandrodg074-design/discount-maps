@@ -1,6 +1,6 @@
 # @org/billing-wompi
 
-Server-only Wompi client for people-web (`scope:people`; business-web may not import it).
+Server-only Wompi client for the consumer area of `apps/web` (`scope:people`; the `scope:app` app may import it, `scope:business` libraries may not).
 
 - `WompiClient`: `getAcceptanceTokens()` (`GET /merchants/info`, `x-merchant-public-key`), `getTokenizationKey()`, `createPaymentSource()`, `createTransaction()` (signs with the integrity secret, `recurrent: true`, one installment), `getTransaction()`. Errors throw `WompiError` with the HTTP status and body.
 - `integritySignature(reference, amountInCents, currency, secret[, expirationTime])`.

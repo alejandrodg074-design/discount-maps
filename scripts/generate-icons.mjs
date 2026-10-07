@@ -1,4 +1,4 @@
-// Generates the PWA icons of both apps from an inline SVG mark (no text, so no
+// Generates the PWA icons of the app from an inline SVG mark (no text, so no
 // font dependency). Run from the repo root: `node scripts/generate-icons.mjs`.
 // Replace the SVG with the real brand mark when the assets arrive (Phase 9 note).
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -9,7 +9,6 @@ const sharp = createRequire(import.meta.url)('sharp');
 
 const BRAND = '#e11d48';
 const BRAND_DARK = '#9f1239';
-const INK = '#1f2937';
 
 /** Map pin with a percent glyph, drawn in a 64×64 box (no fonts). */
 function mark({ pin, glyph }) {
@@ -70,14 +69,9 @@ const root = path.resolve(
   ),
   '..',
 );
-await generate(path.join(root, 'apps/people-web/public/icons'), {
+await generate(path.join(root, 'apps/web/public/icons'), {
   bg: BRAND,
   pin: '#ffffff',
   glyph: BRAND_DARK,
 });
-await generate(path.join(root, 'apps/business-web/public/icons'), {
-  bg: INK,
-  pin: '#ffffff',
-  glyph: BRAND,
-});
-console.log('icons written for people-web and business-web');
+console.log('icons written for web');

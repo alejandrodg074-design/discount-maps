@@ -50,7 +50,7 @@ export interface ContactLinksProps {
   className?: string;
 }
 
-/** The channels list of the "Contacto" page; identical in both apps. */
+/** The channels list of the "Contacto" page; identical for consumers and merchants. */
 export function ContactLinks({
   links = CONTACT_LINKS,
   className = '',

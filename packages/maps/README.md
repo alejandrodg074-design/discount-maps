@@ -1,6 +1,6 @@
 # @org/maps
 
-Location helpers and Google Maps components shared by both apps, built on `@vis.gl/react-google-maps`.
+Location helpers and Google Maps components shared by the consumer and merchant areas, built on `@vis.gl/react-google-maps`.
 
 - `useGeolocation`: one-shot position with the Bogotá fallback from `@org/domain` (`isFallback`, `locate()`).
 - `googleMapsDirectionsUrl` / `wazeUrl`: navigation deep links (no key needed).
