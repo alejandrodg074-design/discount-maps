@@ -1,7 +1,8 @@
 /**
  * Contact channels shown on the "Contacto" pages (consumer and merchant).
- * Handles provided by the owner on 2026-09-22 (no WhatsApp line yet: add an
- * entry with `href: 'https://wa.me/57…'` when one exists).
+ * Handles provided by the owner on 2026-09-22; TikTok changed to @discountmaps
+ * on 2026-10-08. No WhatsApp line yet: add an entry with
+ * `href: 'https://wa.me/57…'` when one exists.
  */
 export const CONTACT_LINKS = [
   {
@@ -13,8 +14,8 @@ export const CONTACT_LINKS = [
   {
     id: 'tiktok',
     label: 'TikTok',
-    href: 'https://www.tiktok.com/@Discountmaps1',
-    description: '@Discountmaps1',
+    href: 'https://www.tiktok.com/@discountmaps',
+    description: '@discountmaps',
   },
   {
     id: 'email',
