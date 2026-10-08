@@ -88,17 +88,27 @@ export function gateRedirect(
 }
 
 /**
+ * True for characters URL parsers strip or rewrite (C0 controls, DEL and the
+ * backslash): "/\t/evil.com" would otherwise become "//evil.com".
+ */
+function hasUnsafeUrlChar(value: string): boolean {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f || code === 0x5c) return true;
+  }
+  return false;
+}
+
+/**
  * Validates a post-login `next` value: same-app relative path only, and it must
  * belong to the user's area; anything else falls back to the role's home.
  */
 export function safeNextForRole(value: unknown, role: UserRole | null): string {
   const home = homeForRole(role);
-  // Control characters and backslashes are stripped or rewritten by URL
-  // parsers ("/\t/evil.com" becomes "//evil.com"): reject them outright.
   if (
     typeof value !== 'string' ||
     !value.startsWith('/') ||
-    /[\u0000-\u001f\u007f\\]/.test(value)
+    hasUnsafeUrlChar(value)
   ) {
     return home;
   }
