@@ -79,10 +79,7 @@ const PAYMENT_STATUS: Record<
 };
 
 export type OutcomeResult =
-  | 'applied'
-  | 'still_pending'
-  | 'already_final'
-  | 'amount_mismatch';
+  'applied' | 'still_pending' | 'already_final' | 'amount_mismatch';
 
 /**
  * Records a Wompi transaction result on its payment row and moves the

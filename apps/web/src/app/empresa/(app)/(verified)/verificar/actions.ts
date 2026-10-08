@@ -4,8 +4,7 @@ import type { VerifyCouponResult } from '@org/domain';
 import { getOwnBusiness, getSession } from '../../../../../lib/business';
 
 export type VerifyActionResult =
-  | { result: VerifyCouponResult }
-  | { error: string };
+  { result: VerifyCouponResult } | { error: string };
 
 const MAX_TOKEN_LENGTH = 512;
 

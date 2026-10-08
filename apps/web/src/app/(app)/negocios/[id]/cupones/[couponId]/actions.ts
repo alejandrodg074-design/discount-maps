@@ -9,8 +9,7 @@ import {
 import { getSession, isUuid } from '../../../../../../lib/session';
 
 export type IssueTokenResult =
-  | { token: string }
-  | { error: IssueTokenError | 'UNKNOWN'; message: string };
+  { token: string } | { error: IssueTokenError | 'UNKNOWN'; message: string };
 
 /** Mints a short-lived QR token for the signed-in consumer (Postgres enforces every rule). */
 export async function issueCouponTokenAction(
