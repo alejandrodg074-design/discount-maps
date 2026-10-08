@@ -6,12 +6,14 @@
 
 ## Progress
 
+> Phases 0–9 were built as two apps (`people-web`, `business-web`). Since 2026-10-07 they are one app, `apps/web` (see [Single app](#single-app--done-2026-10-07) and the decision log); paths below are the current ones.
+
 ### Phase 0 — Workspace hygiene + foundations — **Done 2026-09-20** (local Supabase stack pending Docker install)
 
 - [x] 0. Create `docs/mvp-plan.md` and replace README boilerplate
 - [x] 1. `.gitignore` env/supabase entries; remove `error.log`
 - [x] 2. CI on pnpm without Nx Cloud
-- [x] 3. Tailwind v4 in both apps, es-CO layouts, placeholder pages
+- [x] 3. Tailwind v4 in the apps, es-CO layouts, placeholder pages
 - [x] 4. Generate `@org/domain`, `@org/supabase`, `@org/ui`, `@org/maps`, `@org/billing-wompi`; wire deps, tags, boundaries
 - [x] 5. Supabase CLI + `supabase init`; root `db:*` scripts (`supabase start` blocked: Docker not installed on dev machine; cloud project will be linked instead)
 - [x] 6. `.env.example` per app
@@ -22,30 +24,30 @@
 - [x] 1. `0001_init.sql` + `0002_grants.sql` + `0003_hardening.sql` pushed to the cloud project; types generated with `db:types:linked`
 - [x] 2. `@org/supabase` clients, `proxy.ts`, login / sign-up / callback, role gates (Google button wired; provider config pending in dashboard)
 - [x] 3. pgTAP RLS tests passing on the linked project (via `supabase db query --file`); `@org/domain` tests (50 passing); `db advisors` down to 5 intentional warnings
-- [x] 4. Verify: migrations pushed, pgTAP green on the linked project, live login as consumer on people-web, consumer bounced from business-web, anonymous bounced to login (replayed session cookie from Node)
+- [x] 4. Verify: migrations pushed, pgTAP green on the linked project, live login as consumer, consumer bounced from the merchant area, anonymous bounced to login (replayed session cookie from Node)
 
 ### Phase 2 — Business onboarding + admin verification — **Done 2026-09-21** (address autocomplete deferred to Phase 4, pending Google Maps key)
 
-- [x] 1. `/onboarding` with logo upload and multi-branch entry (address + city + lat/lng with "Usar mi ubicación"; Places autocomplete swaps in once the Maps key exists)
-- [x] 2. `/pendiente` (pending/rejected copy); `/admin` approve/reject with history; `(verified)` route group gates the merchant area
-- [x] 3. Verify: pgTAP `0003_branches` green; live run on the cloud project: owner onboarding with 2 branches → pending → admin approve → owner reaches /inicio
+- [x] 1. `/empresa/onboarding` with logo upload and multi-branch entry (address + city + lat/lng with "Usar mi ubicación"; Places autocomplete swaps in once the Maps key exists)
+- [x] 2. `/empresa/pendiente` (pending/rejected copy); `/admin` approve/reject with history; `(verified)` route group gates the merchant area
+- [x] 3. Verify: pgTAP `0003_branches` green; live run on the cloud project: owner onboarding with 2 branches → pending → admin approve → owner reaches /empresa/inicio
 
 ### Phase 3 — Coupons CRUD + 3-active rule + live preview — **Done 2026-09-21**
 
 - [x] 1. `@org/ui` `CouponCard` (+5 RTL tests), `Toggle`, `TopBar`; business shell (`BottomNav` moves to Phase 4 with the consumer app)
-- [x] 2. `/cupones` list with toggles + ≥3 banner; `/cupones/nuevo` and `/cupones/[id]` with react-hook-form + `useWatch` live preview, image upload, delete
+- [x] 2. `/empresa/cupones` list with toggles + ≥3 banner; `/empresa/cupones/nuevo` and `/empresa/cupones/[id]` with react-hook-form + `useWatch` live preview, image upload, delete
 - [x] 3. Verify: pgTAP `0004_coupons_min_active` (8 assertions) green; live: 4 coupons created through the editor, one deactivated, remaining switches lock at 3, `businesses_public` lists the business with 3 live coupons
 
 ### Phase 4 — Consumer maps + business profile — **Done 2026-09-22** (map canvas landed with the key on the same day)
 
-- [x] 1. `@org/maps` (`useGeolocation`, `googleMapsDirectionsUrl`, `wazeUrl`, `BusinessMap`); people-web `(tabs)` shell with `BottomNav`; `/mapas` nearby list (category chips, distance/discount sort, Bogotá fallback chip); `/negocios/[id]` with branches, deep links and `CouponCard`s. Map canvas with `@vis.gl/react-google-maps` (branded Advanced Markers, info window with "Ver cupones", viewport fitted to the pins) on `/mapas` and `/negocios/[id]`; `PlaceAutocompleteInput` (Places New) on the onboarding and Cuenta branch forms fills address, city, coordinates and `google_place_id`. `Sheet` dropped: the list under the map does the job
+- [x] 1. `@org/maps` (`useGeolocation`, `googleMapsDirectionsUrl`, `wazeUrl`, `BusinessMap`); consumer `(tabs)` shell with `BottomNav`; `/mapas` nearby list (category chips, distance/discount sort, Bogotá fallback chip); `/negocios/[id]` with branches, deep links and `CouponCard`s. Map canvas with `@vis.gl/react-google-maps` (branded Advanced Markers, info window with "Ver cupones", viewport fitted to the pins) on `/mapas` and `/negocios/[id]`; `PlaceAutocompleteInput` (Places New) on the onboarding and Cuenta branch forms fills address, city, coordinates and `google_place_id`. `Sheet` dropped: the list under the map does the job
 - [x] 2. pgTAP `0005_nearby_businesses` (9 assertions) green on the cloud project
 - [x] 3. Verify: static gate green; live as `qa-consumer`: fallback chip, 2 branch rows, "Postres" → empty state, sort toggle, profile with 2 Google Maps + 2 Waze links and 3 coupons
 
 ### Phase 5 — QR + scanner — **Done 2026-09-22** (real camera scan on a phone pending an HTTPS tunnel)
 
 - [x] 1. `/negocios/[id]/cupones/[couponId]`: `CouponCard`, rotating `QrCode` (server action `issueCouponTokenAction`, refresh every 60 s, countdown from the token, "Código manual" copy box), description + T&C
-- [x] 2. business-web `/verificar`: `@yudiel/react-qr-scanner` via `next/dynamic`, branch selector when >1 branch, green/red result card, "Escanear otro", camera-denied state with manual paste fallback
+- [x] 2. `/empresa/verificar`: `@yudiel/react-qr-scanner` via `next/dynamic`, branch selector when >1 branch, green/red result card, "Escanear otro", camera-denied state with manual paste fallback
 - [x] 3. pgTAP `0006_qr_tokens` (15 assertions) green
 - [x] 4. Verify: live QR rotates at 60 s (new jti, countdown resets); merchant pastes a token → "Cupón válido · QA Consumer · Martes de pizza", replay → "ya fue redimido", tampered → "no es válido", `hola` → "no es un cupón"; 1 redemption row at Sede Chapinero
 
@@ -58,19 +60,19 @@
 
 ### Phase 7 — Push notifications — **Done 2026-09-22** (delivery to a real phone + the trigger's HTTP call need the public URL and a device; see [external-dependencies.md](external-dependencies.md))
 
-- [x] 1. VAPID keys generated into `apps/people-web/.env.local` (public key exposed as `NEXT_PUBLIC_VAPID_PUBLIC_KEY`); `public/sw.js` (install / activate / push / notificationclick, no fetch handler), `register-sw.tsx` in the root layout, `app/manifest.ts` + placeholder PNG icons + `appleWebApp` metadata; `NotifyToggle` on `/negocios/[id]` (permission inside the click → `pushManager.subscribe` → `followBusinessAction` upserts `push_subscriptions` + `business_followers`; iOS Safari outside the installed PWA gets the "Añadir a pantalla de inicio" sheet)
+- [x] 1. VAPID keys generated into the app's `.env.local` (public key exposed as `NEXT_PUBLIC_VAPID_PUBLIC_KEY`); `public/sw.js` (install / activate / push / notificationclick, no fetch handler), `register-sw.tsx` in the root layout, `app/manifest.ts` + placeholder PNG icons + `appleWebApp` metadata; `NotifyToggle` on `/negocios/[id]` (permission inside the click → `pushManager.subscribe` → `followBusinessAction` upserts `push_subscriptions` + `business_followers`; iOS Safari outside the installed PWA gets the "Añadir a pantalla de inicio" sheet)
 - [x] 2. `/api/push/new-coupon` (`x-push-secret`): loads coupon + business, skips non-live coupons / unverified businesses, fans out with `web-push` (`dispatchPush`, 4 unit tests), deletes subscriptions the push service reports 404/410; migration `0008_push_hooks` adds `notify_new_coupon()` AFTER INSERT on `coupons` → `net.http_post`, no-op until `people_web_url` + `push_dispatch_secret` exist in Vault
 - [x] 3. Verify: manifest / sw.js / icons served; service worker `activated` at scope `/`; toggle reflects the follow row, switches off through `unfollowBusinessAction`, and explains the blocked permission in the in-app browser; endpoint with a fake follower → `{followers:1, sent:0, failed:1, stale:[…]}`, the gone endpoint deleted and the unreachable one kept; wrong secret 401, bad ids 400, inactive coupon `skipped`; coupon insert still works with the trigger installed. A notification on Android Chrome / installed iOS PWA is pending the tunnel + a device
 
 ### Phase 8 — Contacto / Cuenta / cancel — Done (2026-09-22)
 
-- [x] 1. `CONTACT_LINKS` filled with the real handles (Instagram `@discountmaps`, TikTok `@Discountmaps1`, `discountmaps1@gmail.com`; no WhatsApp line yet); shared `ContactLinks` in `@org/ui`, rendered by `/contacto` in both apps
-- [x] 2. Consumer `/cuenta`: `SubscriptionCard` (status, card, access / next-charge dates, in-flight charge), "Cancelar suscripción" with inline confirmation → `cancelSubscriptionAction` (`cancelSubscription` rule: no more charges, access until period / trial end), "Actualizar tarjeta" / "Reactivar suscripción" → `/cuenta/tarjeta` (same `CardForm` as the trial, `updateCardAction` → new payment source + `applyNewPaymentSource`: past_due / expired-canceled become due now and are charged immediately, canceled-with-time-left go back to trialing / active). Shared `ProfileForm` (name, phone; email read-only) and `PasswordForm` (`passwordChangeSchema`, `auth.updateUser`). Merchant `/cuenta`: `BusinessForm` (name, legal name, NIT, category, description, logo), branch list with "Quitar" + "Agregar sede" (`add_branch`), profile and password forms. Migration `0009_branches_min` keeps at least one branch per business (`MIN_BRANCHES`)
+- [x] 1. `CONTACT_LINKS` filled with the real handles (Instagram `@discountmaps`, TikTok `@Discountmaps1`, `discountmaps1@gmail.com`; no WhatsApp line yet); shared `ContactLinks` in `@org/ui`, rendered by `/contacto` and `/empresa/contacto`
+- [x] 2. Consumer `/cuenta`: `SubscriptionCard` (status, card, access / next-charge dates, in-flight charge), "Cancelar suscripción" with inline confirmation → `cancelSubscriptionAction` (`cancelSubscription` rule: no more charges, access until period / trial end), "Actualizar tarjeta" / "Reactivar suscripción" → `/cuenta/tarjeta` (same `CardForm` as the trial, `updateCardAction` → new payment source + `applyNewPaymentSource`: past_due / expired-canceled become due now and are charged immediately, canceled-with-time-left go back to trialing / active). Shared `ProfileForm` (name, phone; email read-only) and `PasswordForm` (`passwordChangeSchema`, `auth.updateUser`). Merchant `/empresa/cuenta`: `BusinessForm` (name, legal name, NIT, category, description, logo), branch list with "Quitar" + "Agregar sede" (`add_branch`), profile and password forms. Migration `0009_branches_min` keeps at least one branch per business (`MIN_BRANCHES`)
 - [x] 3. Verify: pgTAP `0007_account` (12 assertions: subscription RLS, profile self-edit, cancel keeps access until period / trial end, business self-edit, branch minimum); live as `qa-consumer`: profile saved, same-password → "debe ser diferente", mismatch → field error, cancel → `canceled` (QR still issues), reactivate with `4242` → `trialing` again with the card; `qa-consumer3` (canceled, expired) → reactivate → `past_due` + immediate charge (reference `_4` after the earlier attempts) → reconciled → `active`, period +1 month; live as `qa-owner`: bad NIT echoes values, description saved, branch added and removed, same-password error. Full gate green
 
 ### Phase 9 — PWA polish — **Done 2026-09-22** (Playwright dropped by the owner; brand assets still pending)
 
-- [x] 1. Both apps: `manifest.ts` (`id`, `start_url`, maskable + SVG icons, shortcuts), icons generated by `scripts/generate-icons.mjs` (map-pin "%" mark; replace with the brand assets), `apple-touch-icon`, service worker with an offline fallback (`/sin-conexion`, pre-cached, inline-styled) plus push on people-web, `RegisterServiceWorker` in both root layouts. people-web `/` = splash with `BrandMark`, "Soy persona" / "Soy empresa" (→ `NEXT_PUBLIC_BUSINESS_APP_URL`), sign-up nudge, Instagram link; business-web `/` mirrors it. `InstallHint` (`beforeinstallprompt` on Android/desktop, "Añadir a pantalla de inicio" copy on iOS Safari, "Ahora no" remembered a week) on both landings
+- [x] 1. `manifest.ts` (`id`, `start_url`, maskable + SVG icons, shortcuts), icons generated by `scripts/generate-icons.mjs` (map-pin "%" mark; replace with the brand assets), `apple-touch-icon`, service worker with an offline fallback (`/sin-conexion`, pre-cached, inline-styled) plus push, `RegisterServiceWorker` in the root layout. `/` = splash with `BrandMark`, "Soy persona" / "Soy empresa", sign-up nudge, Instagram link (since 2026-10-07 "Soy empresa" opens `/empresa`, the merchant landing). `InstallHint` (`beforeinstallprompt` on Android/desktop, "Añadir a pantalla de inicio" copy on iOS Safari, "Ahora no" remembered a week) on `/`
 - [x] 2. ~~Playwright e2e~~ dropped on 2026-09-22 (owner: not a priority); the generated config and packages were reverted
 - [x] 3. Verify: Lighthouse no longer has a PWA category (removed in v12), so installability was checked directly: manifest served with 4 icons and 2 shortcuts, all icon / sw / offline URLs 200, service worker `activated` at scope `/` with `/sin-conexion` + icons in the cache, stopping the dev server and navigating to `/mapas` renders "Sin conexión" with "Reintentar"; landings render for signed-out visitors. Real installs on Android / iOS wait for the public HTTPS URL
 
@@ -80,10 +82,16 @@
 - [x] 2. Claude Code skills in `.claude/skills/`: `owner-request`, `ship`, `verify`, `status`, `undo`; `.github/pull_request_template.md` with a "Resumen para el dueño" section
 - [x] 3. `scripts/agent-guard.mjs` wired as a `PreToolUse` hook in `.claude/settings.json`: blocks force push, hard reset, `checkout .`, bare stash, PR merge, `db reset`, `DROP` / `TRUNCATE`, `DELETE` without `WHERE`, Vault writes, recursive deletes of source folders (22-case self-test, all as expected; it also fired twice for real during this work)
 
+### Single app — **Done 2026-10-07**
+
+- [x] 1. `apps/people-web` + `apps/business-web` merged into `apps/web` (Nx `web`, port 3000, tags `type:app`, `scope:app`): consumer routes unchanged, merchant routes under `/empresa` (`(public)` landing + `/empresa/registro`, `(app)` onboarding / pendiente / `(verified)`), admin at `/admin`, one `/login` (`/registro` = consumer, `/empresa/registro` = merchant)
+- [x] 2. Role routing in the pure `src/lib/routing.ts` (`gateRedirect`, `homeForRole`, `safeNextForRole`) with unit tests; `proxy.ts` calls it; `/inicio` redirects by role; one `getSession` (`src/lib/session.ts`)
+- [x] 3. One PWA (manifest "Discount Maps", `start_url: '/inicio'`, one `sw.js` with push, rose icons), one `.env.example` without the cross-app URLs, one `.claude/launch.json` config, Supabase redirect URLs on port 3000 only. No database change
+
 ### Phase 10 — Deploy — Not started
 
 - [ ] 1. Supabase cloud
-- [ ] 2. Vercel projects + env
+- [ ] 2. Vercel project + env
 - [ ] 3. Wompi production events, Maps key restrictions
 - [ ] 4. Production smoke
 
@@ -93,19 +101,19 @@
 
 Discount Maps is a subscription platform connecting consumers ("Persona") with local merchants ("Empresa") that publish coupons on category-filtered interactive maps. Consumers pay a monthly subscription (first 7 days free, card captured upfront) and show a QR at the store; merchants scan it to confirm the subscription is active. Merchants are manually verified by platform operators and must keep at least 3 active coupons to appear on the map.
 
-The Nx workspace (Nx 23.2, pnpm, TS project references) started with two untouched Next.js 16 scaffolds (`apps/people-web`, `apps/business-web`) and nothing else.
+The Nx workspace (Nx 23.2, pnpm, TS project references) started with two untouched Next.js 16 scaffolds (`apps/people-web`, `apps/business-web`) and nothing else; they were merged into `apps/web` on 2026-10-07.
 
 ## Decisions
 
-| Area           | Decision                                                                                                                                                                                                                                             |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Platform       | Web-first. `people-web` = consumer PWA, `business-web` = merchant PWA. Role selector (Persona / Empresa) is the people-web landing page linking to business-web. No Expo in MVP.                                                                     |
-| Backend        | Supabase: Postgres + PostGIS, Supabase Auth, RLS, Storage, pg_cron + pg_net. **No Edge Functions**: server code runs in Next.js route handlers / server actions (Node) and Postgres functions so it can share workspace packages and be jest-tested. |
-| Payments       | Wompi (Colombia, COP). Card on file at sign-up, first charge on day 7, then monthly. No zero-amount verification exists; card validity is proven at first charge.                                                                                    |
-| Auth providers | Email/password + Google at launch. Apple Sign-In deferred post-launch (same OAuth callback, provider config only).                                                                                                                                   |
-| Maps           | Google Maps Platform via `@vis.gl/react-google-maps`; Places Autocomplete (new `PlaceAutocompleteElement`) for branch addresses.                                                                                                                     |
-| Styling        | Tailwind v4, tokens shared from `@org/ui/theme.css`.                                                                                                                                                                                                 |
-| UI language    | Spanish (es-CO) strings, English code.                                                                                                                                                                                                               |
+| Area           | Decision                                                                                                                                                                                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Platform       | Web-first. One PWA, `apps/web`: consumers at the root routes, merchants under `/empresa`, admin at `/admin`, one login; each account has a single role and `src/lib/routing.ts` sends it to its area. Role selector (Persona / Empresa) is the landing `/`. No Expo in MVP. |
+| Backend        | Supabase: Postgres + PostGIS, Supabase Auth, RLS, Storage, pg_cron + pg_net. **No Edge Functions**: server code runs in Next.js route handlers / server actions (Node) and Postgres functions so it can share workspace packages and be jest-tested.                        |
+| Payments       | Wompi (Colombia, COP). Card on file at sign-up, first charge on day 7, then monthly. No zero-amount verification exists; card validity is proven at first charge.                                                                                                           |
+| Auth providers | Email/password + Google at launch. Apple Sign-In deferred post-launch (same OAuth callback, provider config only).                                                                                                                                                          |
+| Maps           | Google Maps Platform via `@vis.gl/react-google-maps`; Places Autocomplete (new `PlaceAutocompleteElement`) for branch addresses.                                                                                                                                            |
+| Styling        | Tailwind v4, tokens shared from `@org/ui/theme.css`.                                                                                                                                                                                                                        |
+| UI language    | Spanish (es-CO) strings, English code.                                                                                                                                                                                                                                      |
 
 ---
 
@@ -114,7 +122,7 @@ The Nx workspace (Nx 23.2, pnpm, TS project references) started with two untouch
 - **Apps**: Next.js 16 App Router (Turbopack), React 19, Tailwind v4, `react-hook-form` + `zod`, `@supabase/ssr`, `@vis.gl/react-google-maps`, `qrcode.react`, `@yudiel/react-qr-scanner`, `web-push`.
 - **Backend**: Supabase (Postgres 15 + PostGIS, pgcrypto, pg_net, pg_cron, Vault). Local dev via `supabase start` (Docker). pgTAP tests via `supabase test db`.
 - **Billing**: Wompi REST (`sandbox.wompi.co` / `production.wompi.co`), server-only client in `@org/billing-wompi`.
-- **Hosting**: Vercel (two projects) + Supabase cloud.
+- **Hosting**: Vercel (one project, `apps/web`) + Supabase cloud.
 
 ## 2. Nx workspace structure
 
@@ -138,11 +146,11 @@ pnpm nx g @nx/js:library packages/billing-wompi --importPath=@org/billing-wompi 
 
 Wiring rules (TS-solution setup; never add `paths` to `tsconfig.base.json`):
 
-- Apps declare `"@org/ui": "workspace:*"` etc. in their `package.json`, then `pnpm install`.
-- Both `next.config.js`: `transpilePackages: ['@org/domain','@org/supabase','@org/ui','@org/maps','@org/billing-wompi']`.
+- The app declares `"@org/ui": "workspace:*"` etc. in their `package.json`, then `pnpm install`.
+- `apps/web/next.config.js`: `transpilePackages: ['@org/domain','@org/supabase','@org/ui','@org/maps','@org/billing-wompi']`.
 - `packages/supabase/package.json` gets subpath `exports`; `packages/ui/package.json` exports `./theme.css`.
 - `pnpm nx sync` after generation; `pnpm nx run-many -t typecheck lint` must pass.
-- Tags: apps get `type:app` + `scope:people` / `scope:business` in their `package.json` `nx.tags`. Constraints in `eslint.config.mjs`:
+- Tags: `apps/web` gets `type:app` + `scope:app` in its `package.json` `nx.tags`. Constraints in `eslint.config.mjs`:
 
 ```js
 depConstraints: [
@@ -174,15 +182,23 @@ depConstraints: [
     onlyDependOnLibsWithTags: ['scope:shared', 'scope:people'],
   },
   {
+    sourceTag: 'scope:app',
+    onlyDependOnLibsWithTags: [
+      'scope:shared',
+      'scope:people',
+      'scope:business',
+    ],
+  },
+  {
     sourceTag: 'scope:business',
     onlyDependOnLibsWithTags: ['scope:shared', 'scope:business'],
   },
 ];
 ```
 
-This makes `business-web → @org/billing-wompi` a lint error by design.
+This makes any `scope:business` project → `@org/billing-wompi` (`scope:people`) a lint error by design; the `scope:app` app may use both.
 
-**Tailwind v4**: `pnpm add -w tailwindcss @tailwindcss/postcss postcss`; per app `postcss.config.mjs` with `{ plugins: { '@tailwindcss/postcss': {} } }`; `global.css`:
+**Tailwind v4**: `pnpm add -w tailwindcss @tailwindcss/postcss postcss`; `apps/web/postcss.config.mjs` with `{ plugins: { '@tailwindcss/postcss': {} } }`; `global.css`:
 
 ```css
 @import 'tailwindcss';
@@ -554,11 +570,11 @@ select cron.schedule('billing-run-hourly', '0 * * * *', $$
 
 | Rule                                                                                                                                                                                                                                                                                                             | Where enforced                                                                                                                 |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **7-day trial gate**: no `subscriptions` row → consumer is redirected to `/suscripcion/tarjeta` until card is captured and payment source created. Trial starts only when the row exists.                                                                                                                        | `proxy.ts` (people-web) + server actions re-check                                                                              |
+| **7-day trial gate**: no `subscriptions` row → consumer is redirected to `/suscripcion/tarjeta` until card is captured and payment source created. Trial starts only when the row exists.                                                                                                                        | `(app)/layout.tsx` + server actions re-check                                                                                   |
 | **Entitlement**: `access_until` = trial end (trialing), period end (active), period end + 5 days grace (past_due), period end (canceled).                                                                                                                                                                        | `subscription_access_until()` SQL, mirrored `@org/domain.subscriptionAccessUntil`; consumed by QR issue/verify and route gates |
-| **Billing**: hourly cron charges subs with `next_charge_at <= now()` and `charge_attempts < 3`; retry every 2 days; webhook `APPROVED` → `active`, `+1 month`, attempts reset; `DECLINED/ERROR/VOIDED` → `past_due`, `canceled` after 3 attempts. Cancel keeps access until `access_until`.                      | `/api/billing/run`, `/api/wompi/webhook` (people-web), `wompi_events` idempotency                                              |
-| **Role**: set by `handle_new_user` from signup metadata; `admin` only via SQL. people-web bounces `business` users to business-web and vice-versa.                                                                                                                                                               | trigger + `proxy.ts` in both apps                                                                                              |
-| **Admin verification**: owners can't modify `verification_status`; admins approve/reject at `/admin` in business-web. Pending → `/pendiente` read-only.                                                                                                                                                          | `protect_business_verification` trigger + RLS + route gate                                                                     |
+| **Billing**: hourly cron charges subs with `next_charge_at <= now()` and `charge_attempts < 3`; retry every 2 days; webhook `APPROVED` → `active`, `+1 month`, attempts reset; `DECLINED/ERROR/VOIDED` → `past_due`, `canceled` after 3 attempts. Cancel keeps access until `access_until`.                      | `/api/billing/run`, `/api/wompi/webhook`, `wompi_events` idempotency                                                           |
+| **Role**: set by `handle_new_user` from signup metadata; `admin` only via SQL. Merchants stay in `/empresa/*`, consumers are kept out of `/empresa/*` and `/admin/*`, admins go anywhere.                                                                                                                        | trigger + `proxy.ts` → `src/lib/routing.ts`                                                                                    |
+| **Admin verification**: owners can't modify `verification_status`; admins approve/reject at `/admin`. Pending → `/empresa/pendiente` read-only.                                                                                                                                                                  | `protect_business_verification` trigger + RLS + route gate                                                                     |
 | **≥3 active coupons**: verified business cannot deactivate/delete a live coupon if it would leave <3 (DB error `MIN_ACTIVE_COUPONS`, Spanish hint). Pending businesses build up freely. Map visibility requires verified AND ≥3 live via `businesses_public`. UI disables toggle at 3 via `canDeactivateCoupon`. | trigger + view + `@org/domain`                                                                                                 |
 | **QR validation**: 90 s HMAC token issued in SQL; consumer refreshes every 60 s; merchant `verify_coupon_token` checks signature, expiry, ownership, coupon live, entitlement, replay (`token_jti` unique), inserts redemption, returns reason code.                                                             | SQL functions; reason → es-CO via `redemptionReasonMessages`                                                                   |
 | **Best-discount sort**: percentage → value; fixed → value/40,000 COP × 100 capped; bogo → 50; other → 0. Business score = max over live coupons, tie-break by distance.                                                                                                                                          | `coupon_score()` SQL + `@org/domain.couponScore`                                                                               |
@@ -566,7 +582,7 @@ select cron.schedule('billing-run-hourly', '0 * * * *', $$
 
 ## 5. Integrations
 
-**Auth** (`@supabase/ssr`): `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `updateSession` runs in `apps/<app>/src/proxy.ts` (Next 16 replaced `middleware.ts`; exported function `proxy`, matcher excludes `_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|icons`). OAuth: `signInWithOAuth` → `app/auth/callback/route.ts` → `exchangeCodeForSession` → gates. Google via Cloud OAuth client with redirect `https://<project>.supabase.co/auth/v1/callback`. Business sign-up passes `options.data.role = 'business'`.
+**Auth** (`@supabase/ssr`): `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; `updateSession` runs in `apps/web/src/proxy.ts` (Next 16 replaced `middleware.ts`; exported function `proxy`, matcher excludes `_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|icons`). OAuth: `signInWithOAuth` → `app/auth/callback/route.ts` → `exchangeCodeForSession` → gates. Google via Cloud OAuth client with redirect `https://<project>.supabase.co/auth/v1/callback`. Business sign-up passes `options.data.role = 'business'`.
 
 **Wompi** (verified at docs.wompi.co, 2026-09-20):
 
@@ -585,10 +601,9 @@ select cron.schedule('billing-run-hourly', '0 * * * *', $$
 
 **Secrets matrix**
 
-- people-web server env: `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`, `WOMPI_API_URL`, `SUPABASE_SECRET_KEY`, `BILLING_CRON_SECRET`, `PUSH_DISPATCH_SECRET`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `SUBSCRIPTION_PRICE_COP`. Public: `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`, `NEXT_PUBLIC_WOMPI_API_URL`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
-- Both apps public: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_BUSINESS_APP_URL` / `NEXT_PUBLIC_PEOPLE_APP_URL`.
-- business-web: no Wompi secrets.
-- Supabase Vault: `people_web_url`, `billing_cron_secret`, `push_dispatch_secret`, `qr_token_secret`.
+- `apps/web` server env: `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`, `WOMPI_API_URL`, `SUPABASE_SECRET_KEY`, `BILLING_CRON_SECRET`, `PUSH_DISPATCH_SECRET`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `SUBSCRIPTION_PRICE_COP`. Public: `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`, `NEXT_PUBLIC_WOMPI_API_URL`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
+- Also public: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`, `NEXT_PUBLIC_APP_URL`.
+- Supabase Vault: `people_web_url` (the `apps/web` base URL; historical name), `billing_cron_secret`, `push_dispatch_secret`, `qr_token_secret`.
 
 ## 6. Roadmap
 
@@ -598,23 +613,23 @@ Each phase ends with its verification; do not start the next until green. Comman
 
 1. `.gitignore`: add `.env`, `.env.*`, `!.env.example`, `supabase/.temp`, `supabase/.branches`. `git rm error.log`.
 2. Rewrite `.github/workflows/ci.yml`: `pnpm/action-setup@v4`, `setup-node@v5` with `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm nx format:check`, `pnpm nx affected -t lint test typecheck build --base=origin/main`. Remove `nx start-ci-run`, `nx record`, `nx fix-ci`, `e2e`.
-3. Tailwind v4 in both apps (section 2); replace welcome pages with placeholders; `lang="es-CO"`.
+3. Tailwind v4 in the apps (section 2); replace welcome pages with placeholders; `lang="es-CO"`.
 4. Generate the five packages; `transpilePackages`, `workspace:*` deps, tags, eslint constraints; `pnpm nx sync`.
 5. `pnpm add -Dw supabase`; `pnpm supabase init`; `pnpm supabase start`. Root scripts `db:start`, `db:reset`, `db:types` (`supabase gen types typescript --local > packages/supabase/src/database.types.ts`), `db:test`.
 6. `.env.example` per app (full matrix above); `.env.local` untracked.
-7. Verify: `pnpm nx run-many -t lint typecheck test build` green; `pnpm nx dev people-web` shows Tailwind styling; `supabase status` up.
+7. Verify: `pnpm nx run-many -t lint typecheck test build` green; `pnpm nx dev web` shows Tailwind styling; `supabase status` up.
 
 **Phase 1 — Schema + auth + roles**
 
 1. `0001_init.sql`, `seed.sql`; `pnpm db:reset && pnpm db:types`.
-2. `@org/supabase` clients + `updateSession`; `proxy.ts` in both apps; login / sign-up / `auth/callback` routes; role gates; Google provider config.
+2. `@org/supabase` clients + `updateSession`; `proxy.ts`; login / sign-up / `auth/callback` routes; role gates; Google provider config.
 3. pgTAP `rls_profiles.sql`, `rls_businesses.sql`. `@org/domain` entitlement tests.
-4. Verify: `pnpm db:test`; consumer cannot open business-web and vice-versa; `pnpm nx test domain`.
+4. Verify: `pnpm db:test`; consumer cannot open the merchant area and vice-versa; `pnpm nx test domain`.
 
 **Phase 2 — Business onboarding + admin verification**
 
-1. business-web `/onboarding`: company form, logo upload to `logos/<business_id>/`, multiple branches with `PlaceAutocompleteInput`; insert `businesses` + `branches` (`st_point(lng, lat)`).
-2. `/pendiente` page; `/admin` (role admin) listing pending businesses with approve/reject.
+1. `/empresa/onboarding`: company form, logo upload to `logos/<business_id>/`, multiple branches with `PlaceAutocompleteInput`; insert `businesses` + `branches` (`st_point(lng, lat)`).
+2. `/empresa/pendiente` page; `/admin` (role admin) listing pending businesses with approve/reject.
 3. Verify: pgTAP for verification trigger; manual: sign up → pending → approve → dashboard unlocks.
 
 **Phase 3 — Coupons CRUD + 3-active rule + live preview**
@@ -625,14 +640,14 @@ Each phase ends with its verification; do not start the next until green. Comman
 
 **Phase 4 — Consumer maps + business profile**
 
-1. `@org/maps`; people-web shell (Mapas / Contacto / Cuenta); `/mapas` with category chips, sort, geolocation fallback, markers + bottom sheet list; `/negocios/[id]` with map, deep links, coupons, back button.
+1. `@org/maps`; consumer shell (Mapas / Contacto / Cuenta); `/mapas` with category chips, sort, geolocation fallback, markers + bottom sheet list; `/negocios/[id]` with map, deep links, coupons, back button.
 2. pgTAP `nearby_businesses.sql` (2-coupon business hidden, 3-coupon shown; radius, category, sort).
 3. Verify: `pnpm db:test`; deny location → Bogotá fallback.
 
 **Phase 5 — QR + scanner**
 
 1. `/negocios/[id]/cupones/[couponId]`: card top, `QrCode` with 60 s refresh + countdown, description/T&C bottom.
-2. business-web `/verificar` with scanner, branch selector if >1 branch, green/red result card, "Escanear otro".
+2. `/empresa/verificar` with scanner, branch selector if >1 branch, green/red result card, "Escanear otro".
 3. pgTAP `qr_tokens.sql`: valid, replay, tampered, wrong business, inactive subscription.
 4. Verify: `pnpm db:test`; two phones over LAN with an HTTPS tunnel (camera + geolocation need a secure context).
 
@@ -651,22 +666,22 @@ Each phase ends with its verification; do not start the next until green. Comman
 
 **Phase 8 — Contacto / Cuenta / cancel**
 
-1. Shared `ContactPage` (`CONTACT_LINKS`) in both apps.
-2. Cuenta: profile edit, password change, business data edit (business-web), subscription card with `access_until`, "Cancelar suscripción", "Actualizar tarjeta" (re-tokenize + new payment source).
+1. Shared `ContactPage` (`CONTACT_LINKS`) for consumers and merchants.
+2. Cuenta: profile edit, password change, business data edit (`/empresa/cuenta`), subscription card with `access_until`, "Cancelar suscripción", "Actualizar tarjeta" (re-tokenize + new payment source).
 3. Verify: pgTAP profile RLS; cancel keeps access until period end.
 
 **Phase 9 — PWA polish**
 
-1. `manifest.ts`, icons 192/512/maskable, `appleWebApp`, people-web `/` = splash + Persona/Empresa landing (Empresa → `NEXT_PUBLIC_BUSINESS_APP_URL`), install hint, "Sin conexión" page.
-2. Add Playwright: `pnpm add -D @nx/playwright@23.2.0 && pnpm nx g @nx/playwright:configuration --project=people-web`; one e2e: business sign-up → admin verify → coupon → consumer map → QR scan.
-3. Verify: Lighthouse PWA ≥ 90 both apps; installs on Android + iOS.
+1. `manifest.ts`, icons 192/512/maskable, `appleWebApp`, `/` = splash + Persona/Empresa landing (Empresa → `/empresa`), install hint, "Sin conexión" page.
+2. Add Playwright: `pnpm add -D @nx/playwright@23.2.0 && pnpm nx g @nx/playwright:configuration --project=web`; one e2e: business sign-up → admin verify → coupon → consumer map → QR scan.
+3. Verify: Lighthouse PWA ≥ 90; installs on Android + iOS.
 
 **Phase 10 — Deploy**
 
-1. Supabase cloud: `supabase link`, `supabase db push`, Vault secrets with production values, Google provider, Site URL + redirect URLs for both domains.
-2. Vercel: two projects, Root Directory `apps/people-web` / `apps/business-web`, "Include source files outside of the Root Directory", `pnpm install --frozen-lockfile`, build `pnpm nx build <app>`, `NX_DAEMON=false`, env matrix.
+1. Supabase cloud: `supabase link`, `supabase db push`, Vault secrets with production values, Google provider, Site URL + redirect URLs for the domain.
+2. Vercel: one project, Root Directory `apps/web`, "Include source files outside of the Root Directory", `pnpm install --frozen-lockfile`, build `pnpm nx build web`, `NX_DAEMON=false`, env matrix.
 3. Wompi production event URL; Google Maps key referrer restrictions.
-4. Verify: production smoke of both flows end to end.
+4. Verify: production smoke of the consumer and merchant flows end to end.
 
 ## 7. Testing strategy
 
@@ -674,7 +689,7 @@ Each phase ends with its verification; do not start the next until green. Comman
 - `@org/ui`: RTL for `CouponCard` (all discount types, es-CO), `Toggle`, form preview updates.
 - `@org/billing-wompi`: jest with mocked `fetch`; signature/checksum; webhook state-machine table test.
 - Database: pgTAP under `supabase/tests/*.sql` impersonating users (`set local role authenticated; set local request.jwt.claims = '{"sub":"<uuid>"}'`) for RLS, triggers, view, RPC, QR functions. CI job: `supabase/setup-cli` → `supabase start` → `supabase test db`.
-- Apps: one smoke render per app; Playwright e2e added in Phase 9.
+- App: one smoke render plus `routing.spec.ts` for the role gates; Playwright e2e was planned for Phase 9 (dropped, see decision log).
 
 ## 8. Verification (end to end)
 
@@ -684,7 +699,7 @@ Each phase ends with its verification; do not start the next until green. Comman
 4. Merchant scans QR → valid; scan again → "ya redimido"; expired subscription → invalid.
 5. Sandbox billing: force trial end → charge → webhook → `active`; decline → `past_due` → `canceled`.
 6. Push: new coupon → notification on Android and installed iOS PWA.
-7. Lighthouse PWA ≥ 90 on both apps.
+7. Lighthouse PWA ≥ 90.
 
 ## 9. Open items the user must supply (not blocking Phase 0–5)
 
@@ -693,7 +708,7 @@ Each phase ends with its verification; do not start the next until green. Comman
 3. Subscription price in COP (`SUBSCRIPTION_PRICE_COP`).
 4. Confirm retry policy: 5-day grace, 3 attempts 2 days apart, then cancel.
 5. Who is admin (promoted via SQL; no invite UI in MVP).
-6. Two hostnames (e.g. `app.<brand>.co`, `negocios.<brand>.co`).
+6. One hostname (e.g. `app.<brand>.co`); merchants use its `/empresa` routes.
 7. Email confirmation on sign-up: on or off for MVP (assume off).
 8. Fixed-amount coupon reference ticket 40,000 COP: confirm or per-category.
 9. Contact links: Instagram, TikTok and email received 2026-09-22 (WhatsApp still missing); brand assets (logo, icons, colors) by Phase 9.
@@ -744,9 +759,10 @@ Each phase ends with its verification; do not start the next until green. Comman
 | 2026-09-22 | QA fixtures after Phase 8: `qa-consumer@` is `trialing` again **with** card 4242 (source 378380), `qa-consumer3@` is `active` with card 4242 (source 378381, period end 2026-10-22).                                                                                                                                                                       | Both went through cancel → reactivate live; docs/database.md updated.                                                                                   |
 | 2026-09-22 | Map canvas: `@vis.gl/react-google-maps` with Advanced Markers (needs `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`; classic markers otherwise), one info window at a time, `fitBounds` re-run on the first `idle` event because a hidden tab computes a wrong zoom. `Sheet` was dropped: the list below the map is enough on a phone.                                   | Simplest API on top of the Maps JS SDK; the placeholder props were kept so the apps only gained `mapId`.                                                |
 | 2026-09-22 | Branch addresses use Places Autocomplete (New) through `PlaceAutocompleteInput` (region `co`, biased to Bogotá, session tokens); picking a suggestion fills city, coordinates and `google_place_id`, manual coordinates stay as the fallback. Each maps component wraps its own `APIProvider`.                                                             | Colombian addresses ("Cra 7 # 60-10") are where Google beats the free geocoders; the key's project must have **Places API (New)** enabled.              |
-| 2026-09-22 | Playwright / e2e tests dropped from Phase 9 at the owner's request (not a priority). The `@nx/playwright` generator output and packages were removed; the in-app-browser recipes in verification-playbook.md remain the e2e coverage.                                                                                                                      | Owner decision; can be added later with `pnpm nx g @nx/playwright:configuration --project=people-web`.                                                  |
+| 2026-09-22 | Playwright / e2e tests dropped from Phase 9 at the owner's request (not a priority). The `@nx/playwright` generator output and packages were removed; the in-app-browser recipes in verification-playbook.md remain the e2e coverage.                                                                                                                      | Owner decision; can be added later with `pnpm nx g @nx/playwright:configuration --project=web`.                                                         |
 | 2026-09-22 | PWA icons are generated by `scripts/generate-icons.mjs` (sharp, inline SVG "%" map pin, no fonts) into both `public/icons/` folders; `BrandMark` in `@org/ui` is the same drawing. Lighthouse's PWA category no longer exists, so installability is verified by hand (manifest, SW cache, offline navigation).                                             | Ships a coherent icon set today; re-run the script (or drop the real PNGs in) when the brand assets arrive.                                             |
 | 2026-09-22 | Service workers cache only `/sin-conexion` + two icons and answer failed **navigations** with that page; nothing else is cached. The offline page is inline-styled because the stylesheet is not cached.                                                                                                                                                   | Every other page depends on the session cookie and live Supabase data; a stale cache would show wrong coupons or a logged-out shell.                    |
 | 2026-09-22 | `InstallHint` lives in `@org/ui` and is shown only on the signed-out landings: Chrome's `beforeinstallprompt` where available, iOS Safari gets the share-sheet copy, dismissal remembered in `localStorage` for 7 days.                                                                                                                                    | One place to nudge installs without nagging inside the app; iOS has no prompt API.                                                                      |
 | 2026-09-22 | Agent harness for non-technical operators: `docs/agent-protocol.md` (risk tiers, when to ask, definition of done, reporting), `docs/recipes.md`, `docs/owner-guide.md` (Spanish), five skills (`owner-request`, `ship`, `verify`, `status`, `undo`), a PR template with an owner summary, and a `PreToolUse` guard hook that blocks destructive commands.  | The owner wants the platform to keep evolving through Claude Code without a developer in the loop; the guard turns "never do X" rules into hard stops.  |
 | 2026-09-22 | The owner guide is written in Spanish (the operators read Spanish); agent-facing docs stay in English like the rest of the repo. The guard matches command text literally, so docs quoting blocked commands are written with the Edit tool, not heredocs.                                                                                                  | Same split as product copy (es-CO) vs code (English); a few false positives are cheaper than a bypassable guard.                                        |
+| 2026-10-07 | Merged people-web and business-web into a single app apps/web; merchant routes under /empresa, admin at /admin, one login, role-based routing in lib/routing.ts; accounts keep a single role; no database change.                                                                                                                                          | One origin, one session and one PWA; the role already decides what each account can do.                                                                 |

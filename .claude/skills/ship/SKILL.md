@@ -8,7 +8,7 @@ Definition of done is `docs/agent-protocol.md § 4`. Run these in order and do n
 
 1. **Docs first**: tick / update `docs/mvp-plan.md` (progress line + a dated decision-log row for any approach change); update the doc that describes the touched area (`database.md`, `auth-and-roles.md`, `frontend-conventions.md`, `product-rules.md`, `verification-playbook.md`, `external-dependencies.md`, package READMEs); add a `docs/recipes.md` row if the task will recur.
 2. **Stop dev servers** (`preview_stop` for every running preview). Building while `next dev` runs corrupts its cache.
-3. **Gate**: restore any `next-env.d.ts` the dev server rewrote (`git checkout -- apps/*/next-env.d.ts`), then
+3. **Gate**: restore any `next-env.d.ts` the dev server rewrote (`git checkout -- apps/web/next-env.d.ts`), then
    `NX_DAEMON=false pnpm nx format:write` and
    `NX_DAEMON=false CI=true pnpm nx run-many -t lint typecheck test build`. Fix and re-run until green.
 4. **Database** (only if `supabase/` changed): `pnpm supabase db push --yes --linked --project-ref rurjvcrmgtrznezvwkih`, regenerate `packages/supabase/src/database.types.ts` if the shape changed, `SUPABASE_PROJECT_REF=rurjvcrmgtrznezvwkih node scripts/pgtap-remote.mjs`, `pnpm supabase db advisors --linked --project-ref rurjvcrmgtrznezvwkih --output-format json` (same warnings as before).

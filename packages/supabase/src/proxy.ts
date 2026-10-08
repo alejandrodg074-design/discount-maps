@@ -17,7 +17,7 @@ export interface SessionInfo {
 
 /**
  * Refreshes the Supabase session cookies on every request and exposes the user's
- * id/role for route gating. Call from each app's `src/proxy.ts`.
+ * id/role for route gating. Call from `apps/web/src/proxy.ts`.
  */
 export async function updateSession(
   request: NextRequest,
@@ -65,6 +65,6 @@ export async function updateSession(
   };
 }
 
-/** Matcher shared by both apps: everything except static assets and PWA files. */
+/** Proxy matcher: everything except static assets and PWA files. */
 export const PROXY_MATCHER =
   '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)';

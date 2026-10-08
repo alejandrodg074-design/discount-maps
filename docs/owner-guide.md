@@ -4,6 +4,10 @@ _(Owner guide, in Spanish because the people who operate Discount Maps read Span
 
 Esta guía es para quien administra Discount Maps sin ser programador. Explica cómo pedirle cambios a la IA (Claude Code), qué hace ella sola, qué te va a preguntar, cómo revisar y aprobar, y cómo deshacer.
 
+## La app en pocas palabras
+
+Discount Maps es **una sola app web** (instalable en el celular) con **un solo ingreso** para todos. Cada cuenta tiene un solo tipo y la app lleva a cada quien a su parte: las personas a los mapas y cupones (`/mapas`), las empresas a su panel (`/empresa`: cupones, escáner de QR, cuenta) y el administrador a `/admin` (aprobar negocios). En la portada, "Soy persona" lleva al ingreso y "Soy empresa" a la página para negocios.
+
 ## Cómo funciona un cambio, de principio a fin
 
 1. **Tú pides** en tu idioma, en el chat de Claude Code. No necesitas saber dónde está el código.

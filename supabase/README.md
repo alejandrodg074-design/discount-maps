@@ -15,13 +15,13 @@ pnpm supabase test db --linked            # run pgTAP tests against the linked p
 Secrets the database needs, created once in the SQL editor of the cloud project (values are not in git):
 
 ```sql
-select vault.create_secret('https://<people-web-domain>', 'people_web_url');
+select vault.create_secret('https://<web-app-domain>', 'people_web_url');
 select vault.create_secret('<random 32+ bytes>', 'billing_cron_secret');
 select vault.create_secret('<random 32+ bytes>', 'push_dispatch_secret');
 select vault.create_secret('<random 32+ bytes>', 'qr_token_secret');
 ```
 
-`billing_cron_secret` and `push_dispatch_secret` must match `BILLING_CRON_SECRET` and `PUSH_DISPATCH_SECRET` in the people-web environment. On the cloud project only `qr_token_secret` exists so far; the hourly billing job and the new-coupon push trigger stay silent until `people_web_url` and their secrets are created.
+`billing_cron_secret` and `push_dispatch_secret` must match `BILLING_CRON_SECRET` and `PUSH_DISPATCH_SECRET` in the `apps/web` environment. On the cloud project only `qr_token_secret` exists so far; the hourly billing job and the new-coupon push trigger stay silent until `people_web_url` (the base URL of `apps/web`; the name predates the single app) and their secrets are created.
 
 Promote the first admin: `update public.profiles set role = 'admin' where id = '<auth.users.id>';`
 

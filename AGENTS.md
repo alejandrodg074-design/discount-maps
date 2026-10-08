@@ -16,6 +16,7 @@ Slash commands in `.claude/skills/`: `/owner-request <text>` (full protocol for 
 - Database work targets the linked Supabase cloud project; never edit an applied migration, add a new one, push it, regenerate types, run the pgTAP runner and the advisors.
 - Business rules live twice: Postgres is the authority, `@org/domain` mirrors it for the UI and tests. Change both.
 - Secrets are pasted by the owner into gitignored `.env.local` files; agents never handle private keys or passwords.
+- One Next.js app, `apps/web` (Nx project `web`, port 3000): consumers at the root routes, merchants under `/empresa`, admin at `/admin`, one `/login`. Role routing lives in `apps/web/src/lib/routing.ts` (unit-tested).
 - UI copy is Spanish (es-CO); code is English. `CouponCard` is the only coupon rendering.
 - Before committing: format, then lint + typecheck + test + build must be green; verify features live when a browser check is possible.
 - Commit on the feature branch at phase boundaries with a summary of what was verified.

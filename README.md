@@ -2,14 +2,17 @@
 
 Subscription platform that connects consumers ("Persona") with local merchants ("Empresa") publishing exclusive coupons on category-filtered interactive maps. Consumers show a rotating QR at the store; merchants scan it to confirm the subscription is active.
 
-## Apps
+## App
 
-| App            | Audience                                                                 | Path                |
-| -------------- | ------------------------------------------------------------------------ | ------------------- |
-| `people-web`   | Consumers: maps, business profiles, coupon QR, account                   | `apps/people-web`   |
-| `business-web` | Merchants: onboarding, coupon management, QR scanner, admin verification | `apps/business-web` |
+One mobile-first installable PWA, `apps/web` (Nx project `web`), built with Next.js 16 on Supabase, Wompi (Colombia) and Google Maps. Every account has one role and one login (`/login`); routing sends each role to its own area:
 
-Both are mobile-first installable PWAs built with Next.js 16 on Supabase, Wompi (Colombia) and Google Maps. Shared code lives in `packages/*` as `@org/*` workspace packages.
+| Area    | Audience                                               | Routes                                                       |
+| ------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| Persona | Consumers: maps, business profiles, coupon QR, account | `/mapas`, `/negocios/*`, `/cuenta`, `/contacto`, `/registro` |
+| Empresa | Merchants: onboarding, coupon management, QR scanner   | `/empresa`, `/empresa/*`                                     |
+| Admin   | Business verification                                  | `/admin`                                                     |
+
+Shared code lives in `packages/*` as `@org/*` workspace packages.
 
 ## Plan, progress and knowledge base
 
@@ -24,8 +27,7 @@ The repo is set up so a non-technical owner can keep iterating through Claude Co
 ```sh
 pnpm install
 pnpm nx run-many -t lint typecheck test build
-pnpm nx dev people-web
-pnpm nx dev business-web
+pnpm nx dev web
 ```
 
 Local database (requires Docker): `pnpm db:start`, `pnpm db:reset`, `pnpm db:types`, `pnpm db:test`.

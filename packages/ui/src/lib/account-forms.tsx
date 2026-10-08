@@ -25,7 +25,7 @@ export interface ProfileFormProps {
   values: { fullName: string; phone: string; email: string };
 }
 
-/** Name + phone editor shared by both apps (email is read-only for now). */
+/** Name + phone editor shared by the consumer and merchant areas (email is read-only for now). */
 export function ProfileForm({ action, values }: ProfileFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
   return (

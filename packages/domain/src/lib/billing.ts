@@ -1,7 +1,7 @@
 /**
  * Billing rules: when a subscription is charged, how a payment outcome moves it
  * between states, and how payment references are built. Consumed by
- * people-web's /api/billing/run and /api/wompi/webhook; no IO here.
+ * apps/web's /api/billing/run and /api/wompi/webhook; no IO here.
  */
 
 import {

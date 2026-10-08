@@ -58,7 +58,7 @@ Conventions every new migration must follow:
 
 ## Secrets in Vault
 
-Postgres functions read secrets from `vault.decrypted_secrets` by name: `qr_token_secret` (exists on the cloud project), `people_web_url`, `billing_cron_secret`, `push_dispatch_secret` (still missing: they need the public people-web URL). `supabase/seed.sql` creates local values; on the cloud project create them once in the SQL editor (see `supabase/README.md`). `billing_cron_secret` / `push_dispatch_secret` must equal the people-web env values. Check what the cron job is doing with `select * from cron.job_run_details order by start_time desc limit 5`.
+Postgres functions read secrets from `vault.decrypted_secrets` by name: `qr_token_secret` (exists on the cloud project), `people_web_url` (historical name; it holds the base URL of `apps/web`), `billing_cron_secret`, `push_dispatch_secret` (still missing: they need the app's public URL). `supabase/seed.sql` creates local values; on the cloud project create them once in the SQL editor (see `supabase/README.md`). `billing_cron_secret` / `push_dispatch_secret` must equal the `apps/web` env values. Check what the cron job is doing with `select * from cron.job_run_details order by start_time desc limit 5`.
 
 ## Fixtures on the cloud project
 
@@ -67,6 +67,5 @@ QA accounts (password `QaPassw0rd!`): `qa-owner@discountmaps.test` (business own
 ## Gotchas
 
 - `getClaims()` verifies JWTs locally, so a deleted user's token stays "valid" until it expires (~1 h). Clear the `sb-*` cookie when switching fixtures.
-- Cookies are per host, not per port: `localhost:3000` and `localhost:3001` share the session in dev. Logging in on one app logs you into the other (and triggers the role bounce).
 - `supabase db push` runs as a temporary `cli_login_postgres` role; objects are still owned by `postgres`.
 - PostgREST embeds through views work (`businesses ... branches_with_coords(name)`), but the embedded columns are typed nullable.
