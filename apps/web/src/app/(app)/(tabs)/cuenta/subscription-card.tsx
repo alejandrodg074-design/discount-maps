@@ -19,7 +19,8 @@ export interface SubscriptionCardProps {
   accessUntil: string | null;
   nextChargeAt: string | null;
   trialEndsAt: string;
-  pricePesos: number;
+  /** Null when the deploy has no SUBSCRIPTION_PRICE_COP: copy omits the amount. */
+  pricePesos: number | null;
   /** A payment is in flight (card just updated, or the hourly run charged it). */
   pendingCharge?: boolean;
   /** From `?tarjeta=ok|reactivada` after the card page. */
@@ -35,18 +36,18 @@ const STATUS_TONE: Record<SubscriptionStatus, string> = {
 
 function describe(p: SubscriptionCardProps): string {
   const until = formatDate(p.accessUntil);
+  const amount = p.pricePesos == null ? '' : ` de ${formatCop(p.pricePesos)}`;
+  const nextCharge = formatDate(p.nextChargeAt);
   switch (p.status) {
     case 'trialing':
       return `Tu semana gratis termina el ${formatDate(
         p.trialEndsAt,
-      )}. Ese día haremos el primer cobro de ${formatCop(p.pricePesos)}.`;
+      )}. Ese día haremos el primer cobro${amount}.`;
     case 'active':
-      return `Próximo cobro de ${formatCop(p.pricePesos)}: ${formatDate(
-        p.nextChargeAt,
-      )}.`;
+      return `Próximo cobro${amount}: ${nextCharge}.`;
     case 'past_due':
       if (p.pendingCharge) {
-        return `Estamos procesando el cobro de ${formatCop(p.pricePesos)}${
+        return `Estamos procesando el cobro${amount}${
           until ? `. Tu acceso sigue hasta el ${until}` : ''
         }.`;
       }

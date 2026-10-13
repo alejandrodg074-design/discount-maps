@@ -2,7 +2,7 @@ import { subscriptionAccessUntil } from '@org/domain';
 import { Button, PageShell, PasswordForm, ProfileForm, TopBar } from '@org/ui';
 import {
   getOwnSubscription,
-  subscriptionPricePesos,
+  subscriptionPricePesosOrNull,
 } from '../../../../lib/billing';
 import { getSession } from '../../../../lib/session';
 import { signOutAction } from '../../../auth/actions';
@@ -54,7 +54,7 @@ export default async function AccountPage({
           }
           nextChargeAt={subscription.next_charge_at}
           trialEndsAt={subscription.trial_ends_at}
-          pricePesos={subscriptionPricePesos()}
+          pricePesos={subscriptionPricePesosOrNull()}
           pendingCharge={(pendingPayments ?? 0) > 0}
           notice={tarjeta ? NOTICES[tarjeta] : null}
         />

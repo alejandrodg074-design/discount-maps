@@ -53,6 +53,20 @@ export function subscriptionPricePesos(): number {
   return Math.round(subscriptionPriceCents() / 100);
 }
 
+/**
+ * The monthly price in pesos, or null when SUBSCRIPTION_PRICE_COP is missing
+ * or invalid. For display only: pages must still render (and offer
+ * "Cerrar sesión") while the deploy environment is incomplete.
+ */
+export function subscriptionPricePesosOrNull(): number | null {
+  try {
+    return subscriptionPricePesos();
+  } catch (error) {
+    console.error('[billing] subscription price not configured', error);
+    return null;
+  }
+}
+
 /** The signed-in consumer's subscription row, or null (memoized per render). */
 export const getOwnSubscription = cache(
   async (): Promise<Subscription | null> => {
@@ -323,11 +337,30 @@ export async function chargeDueSubscriptions(
   return summary;
 }
 
-/** What the card form needs from Wompi (acceptance tokens + tokenization key). */
+type AcceptanceTokens = Awaited<ReturnType<WompiClient['getAcceptanceTokens']>>;
+
+/**
+ * What the card form needs from Wompi (acceptance tokens + tokenization key).
+ * `tokens` is null when Wompi does not answer or when payments are not
+ * configured (missing Wompi keys or SUBSCRIPTION_PRICE_COP): the pages then
+ * show "La pasarela de pagos no responde" instead of crashing, and a non-null
+ * `tokens` guarantees `subscriptionPricePesos()` works.
+ */
 export async function getCardCaptureData() {
-  const wompi = wompiClient();
-  let tokens: Awaited<ReturnType<typeof wompi.getAcceptanceTokens>> | null =
-    null;
+  const publicFields = {
+    apiUrl:
+      process.env.NEXT_PUBLIC_WOMPI_API_URL ?? 'https://sandbox.wompi.co/v1',
+    publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY ?? '',
+  };
+  let wompi: WompiClient;
+  try {
+    wompi = wompiClient();
+    subscriptionPriceCents();
+  } catch (error) {
+    console.error('[billing] payments not configured', error);
+    return { tokens: null, tokenizationKey: null, ...publicFields };
+  }
+  let tokens: AcceptanceTokens | null = null;
   let tokenizationKey: string | null = null;
   try {
     tokens = await wompi.getAcceptanceTokens();
@@ -339,13 +372,7 @@ export async function getCardCaptureData() {
   } catch {
     tokenizationKey = null; // plain tokenization still works
   }
-  return {
-    tokens,
-    tokenizationKey,
-    apiUrl:
-      process.env.NEXT_PUBLIC_WOMPI_API_URL ?? 'https://sandbox.wompi.co/v1',
-    publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY ?? '',
-  };
+  return { tokens, tokenizationKey, ...publicFields };
 }
 
 export const CARD_CAPTURE_ERROR =
