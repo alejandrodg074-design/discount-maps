@@ -33,7 +33,7 @@ function isActive(currentPath: string, href: string): boolean {
   return currentPath === href || currentPath.startsWith(`${href}/`);
 }
 
-/** Fixed bottom tab bar for the mobile shell. Reserve space with `pb-20` on the page. */
+/** Fixed bottom tab bar for the mobile shell. The app layout reserves its height with a spacer below the page. */
 export function BottomNav({
   items,
   currentPath,

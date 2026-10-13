@@ -41,7 +41,7 @@ Merchant routes under `src/app/empresa/`:
 Consumer route groups under `src/app/(app)/`:
 
 - `layout.tsx`: session required (defense in depth).
-- `(tabs)/`: the shell with `BottomNav` — `mapas/`, `contacto/` (`ContactLinks`), `cuenta/` (subscription card with cancel, profile, password, sign-out). Pages use `pb-20`.
+- `(tabs)/`: the shell with `BottomNav` — `mapas/`, `contacto/` (`ContactLinks`), `cuenta/` (subscription card with cancel, profile, password, sign-out). `(tabs)/layout.tsx` adds a spacer under the page so the fixed bar never covers its end.
 - `negocios/[id]/`, `negocios/[id]/cupones/[couponId]/` and `cuenta/tarjeta/` (update / reactivate card): full-screen pages with a back link, outside the tab shell. `cuenta/tarjeta` needs an existing `subscriptions` row (otherwise → `/suscripcion/tarjeta`).
 - `inicio/`: neutral entry point (auth callbacks, Google sign-in, the PWA `start_url`); redirects by role with `homeForRole` (consumer → `/mapas`, admin → `/admin`; merchants are already sent to `/empresa/inicio` by the proxy).
 
