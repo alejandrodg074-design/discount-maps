@@ -340,6 +340,8 @@ export async function chargeDueSubscriptions(
   return summary;
 }
 
+type AcceptanceTokens = Awaited<ReturnType<WompiClient['getAcceptanceTokens']>>;
+
 /**
  * What the card form needs from Wompi (acceptance tokens + tokenization key).
  * `tokens` is null when Wompi does not answer or when payments are not
@@ -361,8 +363,7 @@ export async function getCardCaptureData() {
     console.error('[billing] payments not configured', error);
     return { tokens: null, tokenizationKey: null, ...publicFields };
   }
-  let tokens: Awaited<ReturnType<WompiClient['getAcceptanceTokens']>> | null =
-    null;
+  let tokens: AcceptanceTokens | null = null;
   let tokenizationKey: string | null = null;
   try {
     tokens = await wompi.getAcceptanceTokens();
