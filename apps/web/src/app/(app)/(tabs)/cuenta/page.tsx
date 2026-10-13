@@ -41,7 +41,7 @@ export default async function AccountPage({
     : { count: 0 };
 
   return (
-    <PageShell className="gap-8 pb-24">
+    <PageShell className="gap-8">
       <TopBar title="Cuenta" />
 
       {subscription ? (
