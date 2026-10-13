@@ -37,13 +37,14 @@ const STATUS_TONE: Record<SubscriptionStatus, string> = {
 function describe(p: SubscriptionCardProps): string {
   const until = formatDate(p.accessUntil);
   const amount = p.pricePesos == null ? '' : ` de ${formatCop(p.pricePesos)}`;
+  const nextCharge = formatDate(p.nextChargeAt);
   switch (p.status) {
     case 'trialing':
       return `Tu semana gratis termina el ${formatDate(
         p.trialEndsAt,
       )}. Ese día haremos el primer cobro${amount}.`;
     case 'active':
-      return `Próximo cobro${amount}: ${formatDate(p.nextChargeAt)}.`;
+      return `Próximo cobro${amount}: ${nextCharge}.`;
     case 'past_due':
       if (p.pendingCharge) {
         return `Estamos procesando el cobro${amount}${
