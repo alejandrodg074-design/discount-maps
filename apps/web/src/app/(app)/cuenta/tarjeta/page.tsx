@@ -18,7 +18,8 @@ export default async function UpdateCardPage() {
   const reactivating = subscription.status === 'canceled';
   const { tokens, tokenizationKey, apiUrl, publicKey } =
     await getCardCaptureData();
-  const price = formatCop(subscriptionPricePesos());
+  // Only shown with the form; tokens != null guarantees the price is configured.
+  const price = tokens ? formatCop(subscriptionPricePesos()) : '';
 
   return (
     <PageShell>
