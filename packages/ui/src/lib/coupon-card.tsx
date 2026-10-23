@@ -32,6 +32,7 @@ const dateFormatter = new Intl.DateTimeFormat('es-CO', {
   day: 'numeric',
   month: 'short',
   year: 'numeric',
+  timeZone: 'America/Bogota',
 });
 
 /**
