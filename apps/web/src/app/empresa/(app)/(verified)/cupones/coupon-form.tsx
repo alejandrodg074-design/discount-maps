@@ -7,6 +7,8 @@ import {
   couponSchema,
   DISCOUNT_TYPES,
   discountTypeLabels,
+  couponDateToTimestamp,
+  timestampToCouponDate,
   type CouponInput,
 } from '@org/domain';
 import {
@@ -43,8 +45,6 @@ export interface CouponFormProps {
   canDeactivate: boolean;
 }
 
-const toDateInput = (iso: string | null) => (iso ? iso.slice(0, 10) : '');
-
 export function CouponForm({
   business,
   coupon,
@@ -71,8 +71,8 @@ export function CouponForm({
       discountType: coupon?.discount_type ?? 'percentage',
       discountValue: coupon?.discount_value ?? null,
       terms: coupon?.terms ?? '',
-      validFrom: toDateInput(coupon?.valid_from ?? null),
-      validUntil: toDateInput(coupon?.valid_until ?? null),
+      validFrom: timestampToCouponDate(coupon?.valid_from),
+      validUntil: timestampToCouponDate(coupon?.valid_until),
     },
   });
 
@@ -118,7 +118,7 @@ export function CouponForm({
           discount_type: draft.discountType ?? 'percentage',
           discount_value: needsValue ? draft.discountValue : null,
           image_url: imagePreview,
-          valid_until: draft.validUntil || null,
+          valid_until: couponDateToTimestamp(draft.validUntil, 'end'),
           is_active: isActive,
         }}
       />

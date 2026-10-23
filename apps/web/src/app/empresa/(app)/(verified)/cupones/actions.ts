@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
+  couponDateToTimestamp,
   couponSchema,
   fieldErrorMap,
   LOGO_MAX_BYTES,
@@ -93,8 +94,9 @@ export async function saveCouponAction(
         ? parsed.data.discountValue
         : null,
     terms: parsed.data.terms || null,
-    valid_from: parsed.data.validFrom || null,
-    valid_until: parsed.data.validUntil || null,
+    // Bogotá calendar days: from 00:00 of the first day to 23:59 of the last.
+    valid_from: couponDateToTimestamp(parsed.data.validFrom, 'start'),
+    valid_until: couponDateToTimestamp(parsed.data.validUntil, 'end'),
     is_active: isActive,
   };
 
