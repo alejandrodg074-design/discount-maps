@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
-import { SignupForm } from './auth-forms';
+import { LoginForm, SignupForm } from './auth-forms';
 
 const noop = async () => ({});
 
@@ -32,5 +32,18 @@ describe('SignupForm', () => {
     expect(container.querySelector<HTMLInputElement>('#password')?.type).toBe(
       'password',
     );
+  });
+});
+
+describe('LoginForm', () => {
+  it('can reveal the password', () => {
+    const { container, getByRole } = render(
+      <LoginForm action={noop} registerHref="/registro" />,
+    );
+    const password = () =>
+      container.querySelector<HTMLInputElement>('#password')?.type;
+    expect(password()).toBe('password');
+    fireEvent.click(getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(password()).toBe('text');
   });
 });
