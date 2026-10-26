@@ -23,6 +23,15 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/empresa',
   '/empresa/registro',
   '/sin-conexion',
+  '/terminos',
+  '/privacidad',
+]);
+
+/** Open to everyone, signed in or not, whatever the role (offline page, legal texts). */
+export const ALWAYS_OPEN_PATHS: ReadonlySet<string> = new Set([
+  '/sin-conexion',
+  '/terminos',
+  '/privacidad',
 ]);
 
 /** Landing and auth screens a signed-in user should not see again. */
@@ -67,7 +76,7 @@ export function gateRedirect(
     return `/login?next=${encodeURIComponent(pathname)}`;
   }
 
-  if (pathname === '/sin-conexion') return null;
+  if (ALWAYS_OPEN_PATHS.has(pathname)) return null;
 
   const { role } = session;
   if (SIGNED_OUT_ONLY_PATHS.has(pathname)) return homeForRole(role);

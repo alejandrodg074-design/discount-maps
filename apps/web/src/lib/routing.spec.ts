@@ -23,6 +23,8 @@ describe('gateRedirect, signed out', () => {
     '/empresa',
     '/empresa/registro',
     '/sin-conexion',
+    '/terminos',
+    '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, signedOut)).toBeNull();
   });
@@ -46,6 +48,8 @@ describe('gateRedirect, consumer', () => {
     '/negocios/x',
     '/suscripcion/tarjeta',
     '/sin-conexion',
+    '/terminos',
+    '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, consumer)).toBeNull();
   });
@@ -76,6 +80,8 @@ describe('gateRedirect, business', () => {
     '/empresa/cupones/123',
     '/empresa/verificar',
     '/sin-conexion',
+    '/terminos',
+    '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, business)).toBeNull();
   });

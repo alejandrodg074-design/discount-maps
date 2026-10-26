@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BackIcon, ContactLinks, PageShell, TopBar } from '@org/ui';
+import { LegalLinks } from '../../../../../components/legal-page';
 
 export default function ContactPage() {
   return (
@@ -17,6 +18,7 @@ export default function ContactPage() {
         empresa? Escríbenos por cualquiera de estos canales.
       </p>
       <ContactLinks />
+      <LegalLinks />
     </PageShell>
   );
 }

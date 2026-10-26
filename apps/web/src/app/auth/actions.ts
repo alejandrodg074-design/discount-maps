@@ -5,6 +5,7 @@ import { consumerSignupSchema, fieldErrorMap, loginSchema } from '@org/domain';
 import { roleFromClaims } from '@org/supabase';
 import { createServerSupabase } from '@org/supabase/server';
 import type { AuthActionState } from '@org/ui';
+import { LEGAL_VERSION } from '../../lib/legal';
 import { CONSUMER_HOME, safeNextForRole } from '../../lib/routing';
 
 /** Where a new merchant goes right after creating the account. */
@@ -49,6 +50,7 @@ async function signUp(
     email: formData.get('email'),
     password: formData.get('password'),
     confirm: formData.get('confirm'),
+    acceptTerms: formData.get('acceptTerms'),
   });
   if (!parsed.success) {
     return { fieldErrors: fieldErrorMap(parsed.error) };
@@ -59,7 +61,13 @@ async function signUp(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name: parsed.data.fullName, role },
+      data: {
+        full_name: parsed.data.fullName,
+        role,
+        // Proof of the Ley 1581 authorization given with the checkbox.
+        terms_version: LEGAL_VERSION,
+        terms_accepted_at: new Date().toISOString(),
+      },
       emailRedirectTo: `${appUrl()}/auth/callback?next=${destination}`,
     },
   });
