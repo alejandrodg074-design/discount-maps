@@ -8,6 +8,7 @@ export const REDEMPTION_REASONS = [
   'COUPON_INACTIVE',
   'SUBSCRIPTION_INACTIVE',
   'ALREADY_REDEEMED',
+  'ALREADY_USED',
 ] as const;
 
 export type RedemptionReason = (typeof REDEMPTION_REASONS)[number];
@@ -21,6 +22,8 @@ export const redemptionReasonMessages: Record<RedemptionReason, string> = {
   COUPON_INACTIVE: 'Este cupón ya no está activo.',
   SUBSCRIPTION_INACTIVE: 'La suscripción del cliente no está activa.',
   ALREADY_REDEEMED: 'Este código ya fue redimido.',
+  ALREADY_USED:
+    'Este cliente ya usó este cupón: es de un solo uso por cliente.',
 };
 
 export type VerifyCouponResult =
@@ -43,6 +46,7 @@ export const ISSUE_TOKEN_ERRORS = [
   'UNAUTHENTICATED',
   'SUBSCRIPTION_INACTIVE',
   'COUPON_UNAVAILABLE',
+  'COUPON_ALREADY_USED',
   'QR_SECRET_MISSING',
 ] as const;
 
@@ -53,6 +57,7 @@ export const issueTokenErrorMessages: Record<IssueTokenError, string> = {
   SUBSCRIPTION_INACTIVE:
     'Tu suscripción no está activa. Actívala para usar tus cupones.',
   COUPON_UNAVAILABLE: 'Este cupón ya no está disponible.',
+  COUPON_ALREADY_USED: 'Ya usaste este cupón. Es de un solo uso por cliente.',
   QR_SECRET_MISSING:
     'El servicio de códigos no está configurado. Intenta más tarde.',
 };

@@ -38,6 +38,7 @@ export interface CouponFormProps {
     terms: string | null;
     image_url: string | null;
     is_active: boolean;
+    single_use: boolean;
     valid_from: string | null;
     valid_until: string | null;
   };
@@ -53,6 +54,7 @@ export function CouponForm({
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<CouponActionResult>({});
   const [isActive, setIsActive] = useState(coupon?.is_active ?? true);
+  const [singleUse, setSingleUse] = useState(coupon?.single_use ?? false);
   const [imagePreview, setImagePreview] = useState<string | null>(
     coupon?.image_url ?? null,
   );
@@ -95,6 +97,7 @@ export function CouponForm({
     fd.set('validFrom', values.validFrom ?? '');
     fd.set('validUntil', values.validUntil ?? '');
     fd.set('isActive', String(isActive));
+    fd.set('singleUse', String(singleUse));
     const file = (document.getElementById('image') as HTMLInputElement | null)
       ?.files?.[0];
     if (file) fd.set('image', file);
@@ -120,6 +123,7 @@ export function CouponForm({
           image_url: imagePreview,
           valid_until: couponDateToTimestamp(draft.validUntil, 'end'),
           is_active: isActive,
+          single_use: singleUse,
         }}
       />
 
@@ -207,6 +211,22 @@ export function CouponForm({
             );
           }}
         />
+        <div className="flex items-center justify-between rounded-card border border-line p-4">
+          <div>
+            <p className="font-medium text-ink">Un solo uso por cliente</p>
+            <p className="text-sm text-ink-muted">
+              {singleUse
+                ? 'Cada cliente puede usarlo una sola vez (ej. bono de primera compra).'
+                : 'Cada cliente puede usarlo las veces que quiera.'}
+            </p>
+          </div>
+          <Toggle
+            label="Un solo uso por cliente"
+            hideLabel
+            checked={singleUse}
+            onChange={setSingleUse}
+          />
+        </div>
         <div className="flex items-center justify-between rounded-card border border-line p-4">
           <div>
             <p className="font-medium text-ink">Cupón activo</p>
