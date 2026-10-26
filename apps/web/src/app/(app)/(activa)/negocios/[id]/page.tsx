@@ -194,6 +194,7 @@ export default async function BusinessPage({
                     discount_value: c.discount_value,
                     image_url: couponImageUrl(c.image_path),
                     valid_until: c.valid_until,
+                    single_use: c.single_use,
                   }}
                 />
               </li>

@@ -53,6 +53,7 @@ export default async function EditCouponPage({
           terms: coupon.terms,
           image_url: couponImageUrl(coupon.image_path),
           is_active: coupon.is_active,
+          single_use: coupon.single_use,
           valid_from: coupon.valid_from,
           valid_until: coupon.valid_until,
         }}

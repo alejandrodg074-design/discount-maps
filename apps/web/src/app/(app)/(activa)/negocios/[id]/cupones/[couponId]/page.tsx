@@ -49,6 +49,7 @@ export default async function CouponPage({
           discount_value: coupon.discount_value,
           image_url: couponImageUrl(coupon.image_path),
           valid_until: coupon.valid_until,
+          single_use: coupon.single_use,
         }}
         className="mb-6"
       />

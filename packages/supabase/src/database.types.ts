@@ -207,6 +207,7 @@ export type Database = {
           id: string;
           image_path: string | null;
           is_active: boolean;
+          single_use: boolean;
           terms: string | null;
           title: string;
           updated_at: string;
@@ -222,6 +223,7 @@ export type Database = {
           id?: string;
           image_path?: string | null;
           is_active?: boolean;
+          single_use?: boolean;
           terms?: string | null;
           title: string;
           updated_at?: string;
@@ -237,6 +239,7 @@ export type Database = {
           id?: string;
           image_path?: string | null;
           is_active?: boolean;
+          single_use?: boolean;
           terms?: string | null;
           title?: string;
           updated_at?: string;

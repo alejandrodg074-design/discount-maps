@@ -81,6 +81,11 @@ export default async function CouponsPage() {
                   <p className="text-sm text-brand-600">
                     {formatDiscount(c.discount_type, c.discount_value)}
                   </p>
+                  {c.single_use ? (
+                    <p className="text-xs text-ink-muted">
+                      Un solo uso por cliente
+                    </p>
+                  ) : null}
                   {c.is_active && !live ? (
                     <p className="text-xs text-ink-muted">
                       Fuera de su periodo de validez

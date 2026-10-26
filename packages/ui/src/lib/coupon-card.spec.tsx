@@ -35,6 +35,20 @@ describe('CouponCard', () => {
     expect(screen.getByText(/Válido hasta/)).toBeTruthy();
   });
 
+  it('flags single-use coupons', () => {
+    render(
+      <CouponCard
+        coupon={{
+          title: 'Bono primera compra',
+          discount_type: 'fixed',
+          discount_value: 50000,
+          single_use: true,
+        }}
+      />,
+    );
+    expect(screen.getByText('Un solo uso por cliente')).toBeTruthy();
+  });
+
   it('shows the preview badge and a placeholder title while editing', () => {
     render(
       <CouponCard preview coupon={{ title: '', discount_type: 'bogo' }} />,

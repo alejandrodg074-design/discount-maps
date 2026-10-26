@@ -98,6 +98,7 @@ export async function saveCouponAction(
     valid_from: couponDateToTimestamp(parsed.data.validFrom, 'start'),
     valid_until: couponDateToTimestamp(parsed.data.validUntil, 'end'),
     is_active: isActive,
+    single_use: text(formData, 'singleUse') === 'true',
   };
 
   let id = couponId;

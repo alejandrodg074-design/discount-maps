@@ -9,6 +9,8 @@ export interface CouponCardCoupon {
   image_url?: string | null;
   valid_until?: string | null;
   is_active?: boolean;
+  /** Redeemable once per customer (e.g. a first-purchase voucher). */
+  single_use?: boolean;
 }
 
 export interface CouponCardBusiness {
@@ -109,6 +111,11 @@ export function CouponCard({
         {coupon.description ? (
           <p className="line-clamp-2 text-sm text-ink-muted">
             {coupon.description}
+          </p>
+        ) : null}
+        {coupon.single_use ? (
+          <p className="w-fit rounded-pill bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+            Un solo uso por cliente
           </p>
         ) : null}
         {validUntil && !Number.isNaN(validUntil.getTime()) ? (
