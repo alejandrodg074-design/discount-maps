@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState, useTransition } from 'react';
-import { DEFAULT_MAP_CENTER, MAX_BRANCHES } from '@org/domain';
+import { MAX_BRANCHES } from '@org/domain';
 import { PlaceAutocompleteInput } from '@org/maps';
 import {
   Button,
@@ -24,6 +24,9 @@ export interface BranchRow {
 }
 
 const initial: AuthActionState = {};
+
+const LOCATION_ERROR =
+  'No pudimos obtener tu ubicación. Escribe la dirección y elígela de la lista, o escribe la latitud y la longitud.';
 
 export function BranchList({ branches }: { branches: BranchRow[] }) {
   const [error, setError] = useState<string | null>(null);
@@ -93,21 +96,24 @@ export function AddBranchForm({
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('Bogotá');
   const [placeId, setPlaceId] = useState('');
+  const [locError, setLocError] = useState<string | null>(null);
   const v = state.values ?? {};
 
+  // On failure say so instead of guessing a location: a wrong pin keeps the
+  // branch off the map for nearby consumers.
   const locate = () => {
-    if (!navigator.geolocation) return;
+    setLocError(null);
+    if (!navigator.geolocation) {
+      setLocError(LOCATION_ERROR);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         setCoords({
           lat: pos.coords.latitude.toFixed(6),
           lng: pos.coords.longitude.toFixed(6),
         }),
-      () =>
-        setCoords({
-          lat: String(DEFAULT_MAP_CENTER.lat),
-          lng: String(DEFAULT_MAP_CENTER.lng),
-        }),
+      () => setLocError(LOCATION_ERROR),
       { enableHighAccuracy: true, timeout: 8000 },
     );
   };
@@ -210,6 +216,7 @@ export function AddBranchForm({
           Agregar sede
         </Button>
       </div>
+      <FormError message={locError} />
       <FormError message={state.error} />
       <FormNotice message={state.message} />
     </form>

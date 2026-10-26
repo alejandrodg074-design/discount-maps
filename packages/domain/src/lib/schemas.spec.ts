@@ -1,4 +1,6 @@
 import {
+  BRANCH_LOCATION_REQUIRED,
+  branchSchema,
   businessProfileSchema,
   businessSignupSchema,
   couponSchema,
@@ -139,6 +141,18 @@ describe('businessProfileSchema / onboardingSchema', () => {
         branches: [{ ...branch, lat: 95 }],
       }).success,
     ).toBe(false);
+  });
+
+  it('rejects a branch whose coordinates were left empty (0, 0)', () => {
+    const result = onboardingSchema.safeParse({
+      ...profile,
+      branches: [{ ...branch, lat: 0, lng: 0 }],
+    });
+    expect(result.success).toBe(false);
+    expect(
+      branchSchema.safeParse({ ...branch, lat: 0, lng: 0 }).error?.issues[0]
+        ?.message,
+    ).toBe(BRANCH_LOCATION_REQUIRED);
   });
 });
 

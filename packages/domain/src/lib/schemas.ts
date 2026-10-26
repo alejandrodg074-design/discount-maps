@@ -58,15 +58,26 @@ export const businessProfileSchema = z.object({
 });
 export type BusinessProfileInput = z.infer<typeof businessProfileSchema>;
 
-export const branchSchema = z.object({
-  name: z.string().trim().min(2, 'Ingresa el nombre de la sede.').max(60),
-  addressLine: z.string().trim().min(5, 'Ingresa la dirección.').max(160),
-  city: z.string().trim().min(2, 'Ingresa la ciudad.').max(60),
-  lat: z.number().min(-90).max(90),
-  lng: z.number().min(-180).max(180),
-  googlePlaceId: optionalText(200),
-  phone: optionalText(20),
-});
+/** Shown when a branch has no usable coordinates (both missing / 0, 0). */
+export const BRANCH_LOCATION_REQUIRED =
+  'Ubica la sede: elige la dirección de la lista o escribe la latitud y la longitud.';
+
+export const branchSchema = z
+  .object({
+    name: z.string().trim().min(2, 'Ingresa el nombre de la sede.').max(60),
+    addressLine: z.string().trim().min(5, 'Ingresa la dirección.').max(160),
+    city: z.string().trim().min(2, 'Ingresa la ciudad.').max(60),
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    googlePlaceId: optionalText(200),
+    phone: optionalText(20),
+  })
+  // Empty latitude / longitude inputs arrive as Number('') = 0: a branch at
+  // 0, 0 is in the Atlantic and would never show up on the map.
+  .refine((b) => !(b.lat === 0 && b.lng === 0), {
+    path: ['lat'],
+    message: BRANCH_LOCATION_REQUIRED,
+  });
 export type BranchInput = z.infer<typeof branchSchema>;
 
 export const DISCOUNT_TYPES = ['percentage', 'fixed', 'bogo', 'other'] as const;
