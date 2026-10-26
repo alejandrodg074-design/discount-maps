@@ -26,4 +26,9 @@ export const verificationStatusLabels: Record<VerificationStatus, string> = {
 
 /** Default map center when geolocation is unavailable: Bogotá. */
 export const DEFAULT_MAP_CENTER = { lat: 4.711, lng: -74.0721 } as const;
-export const DEFAULT_SEARCH_RADIUS_M = 10_000;
+/**
+ * Search radius of the consumer map: 200 km, so a consumer anywhere in Valle del
+ * Cauca sees every business in the department (Cali to Cartago is ~190 km).
+ * Owner decision 2026-10-26; it was 10 km.
+ */
+export const DEFAULT_SEARCH_RADIUS_M = 200_000;
