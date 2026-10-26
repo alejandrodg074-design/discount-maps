@@ -25,8 +25,14 @@ import { getSession } from './session';
 export type Subscription = Tables<'subscriptions'>;
 export type Payment = Tables<'payments'>;
 
+/** Reads a setting, ignoring spaces / line breaks pasted around the value. */
+function env(name: string): string | undefined {
+  const v = process.env[name]?.trim();
+  return v || undefined;
+}
+
 function requireEnv(name: string): string {
-  const v = process.env[name];
+  const v = env(name);
   if (!v) throw new Error(`Missing ${name} in the web app environment.`);
   return v;
 }
@@ -34,7 +40,8 @@ function requireEnv(name: string): string {
 /** Server-side Wompi client built from the environment. */
 export function wompiClient(): WompiClient {
   return new WompiClient({
-    apiUrl: requireEnv('WOMPI_API_URL'),
+    // Tolerate a trailing slash ('…/v1/') so paths never become '//merchants'.
+    apiUrl: requireEnv('WOMPI_API_URL').replace(/\/+$/, ''),
     publicKey: requireEnv('NEXT_PUBLIC_WOMPI_PUBLIC_KEY'),
     privateKey: requireEnv('WOMPI_PRIVATE_KEY'),
     integritySecret: requireEnv('WOMPI_INTEGRITY_SECRET'),
@@ -382,9 +389,8 @@ type AcceptanceTokens = Awaited<ReturnType<WompiClient['getAcceptanceTokens']>>;
  */
 export async function getCardCaptureData() {
   const publicFields = {
-    apiUrl:
-      process.env.NEXT_PUBLIC_WOMPI_API_URL ?? 'https://sandbox.wompi.co/v1',
-    publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY ?? '',
+    apiUrl: env('NEXT_PUBLIC_WOMPI_API_URL') ?? 'https://sandbox.wompi.co/v1',
+    publicKey: env('NEXT_PUBLIC_WOMPI_PUBLIC_KEY') ?? '',
   };
   let wompi: WompiClient;
   try {
@@ -399,7 +405,13 @@ export async function getCardCaptureData() {
   try {
     tokens = await wompi.getAcceptanceTokens();
   } catch (error) {
-    console.error('[billing] acceptance tokens failed', error);
+    // Wompi's body says why (e.g. an invalid public key); it holds no secrets.
+    console.error(
+      '[billing] acceptance tokens failed',
+      error instanceof WompiError
+        ? `${error.message} ${JSON.stringify(error.body)}`
+        : error,
+    );
   }
   try {
     tokenizationKey = await wompi.getTokenizationKey();
