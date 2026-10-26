@@ -36,6 +36,7 @@ export function LoginForm({
   next,
 }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="flex flex-col gap-6">
       <form action={formAction} className="flex flex-col gap-4" noValidate>
@@ -53,11 +54,16 @@ export function LoginForm({
         <InputField
           id="password"
           name="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           label="Contraseña"
           autoComplete="current-password"
           required
           error={state.fieldErrors?.password}
+        />
+        <ShowPasswordToggle
+          shown={showPassword}
+          onToggle={() => setShowPassword((v) => !v)}
+          controls="password"
         />
         <FormError message={state.error} />
         <Button type="submit" block loading={pending}>
@@ -141,16 +147,11 @@ export function SignupForm({
           required
           error={state.fieldErrors?.confirm}
         />
-        <button
-          type="button"
-          aria-pressed={showPassword}
-          aria-controls="password confirm"
-          onClick={() => setShowPassword((v) => !v)}
-          className="-mt-2 inline-flex items-center gap-2 self-start py-1 text-sm font-semibold text-brand-600"
-        >
-          <EyeIcon crossed={showPassword} />
-          {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-        </button>
+        <ShowPasswordToggle
+          shown={showPassword}
+          onToggle={() => setShowPassword((v) => !v)}
+          controls="password confirm"
+        />
         {children}
         <FormError message={state.error} />
         <Button type="submit" block loading={pending}>
@@ -171,6 +172,31 @@ export function SignupForm({
         </a>
       </p>
     </div>
+  );
+}
+
+/** "Mostrar / Ocultar contraseña" button under the password field(s). */
+function ShowPasswordToggle({
+  shown,
+  onToggle,
+  controls,
+}: {
+  shown: boolean;
+  onToggle: () => void;
+  /** Space-separated ids of the inputs it reveals. */
+  controls: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={shown}
+      aria-controls={controls}
+      onClick={onToggle}
+      className="-mt-2 inline-flex items-center gap-2 self-start py-1 text-sm font-semibold text-brand-600"
+    >
+      <EyeIcon crossed={shown} />
+      {shown ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+    </button>
   );
 }
 
