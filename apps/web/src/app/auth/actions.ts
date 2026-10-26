@@ -96,7 +96,12 @@ export async function businessSignupAction(
   return signUp(formData, 'business');
 }
 
-/** Google sign-in / sign-up. New Google accounts are always consumers. */
+/**
+ * Google sign-in / sign-up. New Google accounts are always consumers.
+ * Not wired to any page since 2026-10-26 (the Google provider is not set up in
+ * Supabase yet): pass `googleAction` to `LoginForm` / `SignupForm` to show the
+ * button again once it is.
+ */
 export async function googleAction(): Promise<void> {
   const supabase = await createServerSupabase();
   const { data, error } = await supabase.auth.signInWithOAuth({
