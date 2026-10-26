@@ -27,7 +27,8 @@ export interface NearbyRow extends RpcRow {
 
 export type NearbyResult = { rows: NearbyRow[] } | { error: string };
 
-const MAX_RADIUS_M = 50_000;
+/** Upper bound for a caller-supplied radius; matches the default map radius. */
+const MAX_RADIUS_M = DEFAULT_SEARCH_RADIUS_M;
 
 function isFiniteBetween(v: unknown, min: number, max: number): v is number {
   return typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
