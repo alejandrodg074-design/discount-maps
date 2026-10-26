@@ -8,6 +8,7 @@ import {
   addDays,
   CHARGE_RETRY_DAYS,
   MAX_CHARGE_ATTEMPTS,
+  PAST_DUE_GRACE_DAYS,
   subscriptionAccessUntil,
   type SubscriptionLike,
   type SubscriptionStatus,
@@ -64,6 +65,23 @@ export function periodAnchor(s: SubscriptionLike): Date {
   const end = toDate(s.current_period_end) ?? toDate(s.trial_ends_at);
   if (!end) throw new Error('subscription has no trial_ends_at');
   return end;
+}
+
+/**
+ * Where the period paid by a charge made at `now` starts. On-time charges and
+ * retries inside the past_due grace keep the cycle (`periodAnchor`). A
+ * subscription that lapsed (anchor older than the grace, e.g. reactivated weeks
+ * later) starts a fresh period now: otherwise "anchor + 1 month" can be only
+ * days away and the consumer is charged again almost at once.
+ */
+export function chargePeriodStart(
+  s: SubscriptionLike,
+  now: Date = new Date(),
+): Date {
+  const anchor = periodAnchor(s);
+  return addDays(anchor, PAST_DUE_GRACE_DAYS).getTime() < now.getTime()
+    ? now
+    : anchor;
 }
 
 /** `sub_<subscription id>_<period start epoch seconds>_<attempt>` (unique per attempt). */
@@ -127,7 +145,7 @@ export function planCharge(
   priorPayments = 0,
 ): ChargePlan {
   const attempt = s.charge_attempts + 1;
-  const periodStart = periodAnchor(s);
+  const periodStart = chargePeriodStart(s, now);
   return {
     attempt,
     periodStart,
@@ -144,15 +162,20 @@ export function planCharge(
 /**
  * Subscription changes implied by a payment outcome, or null when nothing
  * changes yet (PENDING). Mirrors the rules in mvp-plan § 4 "Billing".
+ * `paidPeriodEnd` is the `period_end` recorded on the payment by `planCharge`;
+ * when given it is the source of truth for the new period.
  */
 export function applyPaymentOutcome(
   s: BillableSubscription,
   outcome: PaymentOutcome,
   now: Date = new Date(),
+  paidPeriodEnd?: string | Date | null,
 ): SubscriptionPatch | null {
   if (outcome === 'PENDING') return null;
   if (outcome === 'APPROVED') {
-    let periodEnd = addMonths(periodAnchor(s), SUBSCRIPTION_PERIOD_MONTHS);
+    let periodEnd =
+      toDate(paidPeriodEnd) ??
+      addMonths(chargePeriodStart(s, now), SUBSCRIPTION_PERIOD_MONTHS);
     if (periodEnd.getTime() <= now.getTime()) {
       periodEnd = addMonths(now, SUBSCRIPTION_PERIOD_MONTHS);
     }
