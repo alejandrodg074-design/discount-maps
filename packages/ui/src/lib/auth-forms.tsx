@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { Button } from './button';
 import { FormError, InputField } from './field';
 
@@ -98,6 +98,7 @@ export function SignupForm({
   submitLabel = 'Crear cuenta',
 }: SignupFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="flex flex-col gap-6">
       <form action={formAction} className="flex flex-col gap-4" noValidate>
@@ -122,7 +123,7 @@ export function SignupForm({
         <InputField
           id="password"
           name="password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           label="Contraseña"
           hint="Mínimo 8 caracteres."
           autoComplete="new-password"
@@ -130,6 +131,26 @@ export function SignupForm({
           required
           error={state.fieldErrors?.password}
         />
+        <InputField
+          id="confirm"
+          name="confirm"
+          type={showPassword ? 'text' : 'password'}
+          label="Confirmar contraseña"
+          hint="Escríbela de nuevo."
+          autoComplete="new-password"
+          required
+          error={state.fieldErrors?.confirm}
+        />
+        <button
+          type="button"
+          aria-pressed={showPassword}
+          aria-controls="password confirm"
+          onClick={() => setShowPassword((v) => !v)}
+          className="-mt-2 inline-flex items-center gap-2 self-start py-1 text-sm font-semibold text-brand-600"
+        >
+          <EyeIcon crossed={showPassword} />
+          {showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        </button>
         {children}
         <FormError message={state.error} />
         <Button type="submit" block loading={pending}>
@@ -150,6 +171,26 @@ export function SignupForm({
         </a>
       </p>
     </div>
+  );
+}
+
+function EyeIcon({ crossed }: { crossed: boolean }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+      <circle cx="12" cy="12" r="3" />
+      {crossed ? <path d="M3 3l18 18" /> : null}
+    </svg>
   );
 }
 
