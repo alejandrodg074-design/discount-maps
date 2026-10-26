@@ -6,7 +6,7 @@ import {
   type BusinessCategory,
 } from '@org/domain';
 import { publicStorageUrl, type Database } from '@org/supabase';
-import { getSession } from '../../../../lib/session';
+import { getSession } from '../../../../../lib/session';
 
 export type NearbySort = 'distance' | 'discount';
 

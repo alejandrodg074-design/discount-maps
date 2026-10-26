@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { homeForRole } from '../../../lib/routing';
-import { getSession } from '../../../lib/session';
+import { homeForRole } from '../../../../lib/routing';
+import { getSession } from '../../../../lib/session';
 
 /**
  * Neutral entry point (auth callbacks, Google sign-in and the installed app's

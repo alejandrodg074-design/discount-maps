@@ -6,7 +6,7 @@ import {
   getLiveCoupon,
   getPublicBusiness,
   logoUrl,
-} from '../../../../../../lib/businesses';
+} from '../../../../../../../lib/businesses';
 import { CouponQr } from './coupon-qr';
 
 export const dynamic = 'force-dynamic';

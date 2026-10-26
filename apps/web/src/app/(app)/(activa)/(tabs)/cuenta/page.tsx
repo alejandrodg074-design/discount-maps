@@ -3,9 +3,9 @@ import { Button, PageShell, PasswordForm, ProfileForm, TopBar } from '@org/ui';
 import {
   getOwnSubscription,
   subscriptionPricePesosOrNull,
-} from '../../../../lib/billing';
-import { getSession } from '../../../../lib/session';
-import { signOutAction } from '../../../auth/actions';
+} from '../../../../../lib/billing';
+import { getSession } from '../../../../../lib/session';
+import { signOutAction } from '../../../../auth/actions';
 import { changePasswordAction, updateProfileAction } from './actions';
 import { SubscriptionCard } from './subscription-card';
 
