@@ -41,13 +41,15 @@ Merchant routes under `src/app/empresa/`:
 Consumer route groups under `src/app/(app)/`:
 
 - `layout.tsx`: session required (defense in depth).
-- `(tabs)/`: the shell with `BottomNav` — `mapas/`, `contacto/` (`ContactLinks`), `cuenta/` (subscription card with cancel, profile, password, sign-out). `(tabs)/layout.tsx` adds a spacer under the page so the fixed bar never covers its end.
-- `negocios/[id]/`, `negocios/[id]/cupones/[couponId]/` and `cuenta/tarjeta/` (update / reactivate card): full-screen pages with a back link, outside the tab shell. `cuenta/tarjeta` needs an existing `subscriptions` row (otherwise → `/suscripcion/tarjeta`).
-- `inicio/`: neutral entry point (auth callbacks, Google sign-in, the PWA `start_url`); redirects by role with `homeForRole` (consumer → `/mapas`, admin → `/admin`; merchants are already sent to `/empresa/inicio` by the proxy).
+- `(activa)/layout.tsx`: the access gate. Everything below needs `isEntitled` (trial / paid period / past-due grace) or a charge still pending at Wompi (`getConsumerAccess`); otherwise → `/cuenta/tarjeta`. Admins are exempt. Holds `(tabs)/`, `negocios/` and `inicio/`.
+- `(activa)/(tabs)/`: the shell with `BottomNav` — `mapas/`, `contacto/` (`ContactLinks`), `cuenta/` (subscription card with cancel, profile, password, sign-out). `(tabs)/layout.tsx` adds a spacer under the page so the fixed bar never covers its end.
+- `(activa)/negocios/[id]/` and `(activa)/negocios/[id]/cupones/[couponId]/`: full-screen pages with a back link, outside the tab shell.
+- `cuenta/tarjeta/` (update / reactivate card): outside `(activa)` so a lapsed consumer can reach it; needs an existing `subscriptions` row (otherwise → `/suscripcion/tarjeta`). When the subscription lapsed it has no back link, says "Tu suscripción no está activa" and shows "Cerrar sesión".
+- `(activa)/inicio/`: neutral entry point (auth callbacks, Google sign-in, the PWA `start_url`); redirects by role with `homeForRole` (consumer → `/mapas`, admin → `/admin`; merchants are already sent to `/empresa/inicio` by the proxy).
 
 - `(subscribe)/suscripcion/tarjeta/`: session required, **no** `subscriptions` row (otherwise → `/mapas`). This is the trial gate's destination.
 
-Trial gate: `(app)/layout.tsx` looks up the consumer's `subscriptions` row (`getOwnSubscription`, cached per render) and redirects to `/suscripcion/tarjeta` when there is none; admins are exempt. An existing but lapsed subscription still enters the app — the coupon detail shows "Tu suscripción no está activa" when `issue_coupon_token` raises `SUBSCRIPTION_INACTIVE`, and `/cuenta` offers "Reactivar suscripción" (→ `/cuenta/tarjeta`).
+Trial gate: `(app)/layout.tsx` looks up the consumer's `subscriptions` row (`getOwnSubscription`, cached per render) and redirects to `/suscripcion/tarjeta` when there is none; admins are exempt. Access gate (since 2026-10-25): a subscription that lapsed (canceled and past its end, or unpaid past the grace days) only reaches `/cuenta/tarjeta` to pay again; a canceled subscription keeps full access until `subscription_access_until`. The coupon detail still shows "Tu suscripción no está activa" if `issue_coupon_token` raises `SUBSCRIPTION_INACTIVE` (defense in depth).
 
 Password change (`changePasswordAction` in the consumer and merchant `cuenta/actions.ts`) calls `supabase.auth.updateUser({ password })` on the user-session client; Supabase rejects reusing the current password ("debe ser diferente"). Email changes are not self-service in the MVP.
 

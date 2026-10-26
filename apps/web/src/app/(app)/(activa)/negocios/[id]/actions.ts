@@ -1,7 +1,7 @@
 'use server';
 
 import type { Json } from '@org/supabase';
-import { getSession, isUuid } from '../../../../lib/session';
+import { getSession, isUuid } from '../../../../../lib/session';
 
 export interface PushSubscriptionInput {
   endpoint: string;

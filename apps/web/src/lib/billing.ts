@@ -10,6 +10,7 @@ import {
 import {
   applyPaymentOutcome,
   isChargeDue,
+  isEntitled,
   MAX_CHARGE_ATTEMPTS,
   PAYMENT_CURRENCY,
   periodAnchor,
@@ -87,6 +88,39 @@ export const getOwnSubscription = cache(
     return data ?? null;
   },
 );
+
+export interface ConsumerAccess {
+  subscription: Subscription | null;
+  /** Inside the trial / paid period (or the past-due grace days). */
+  entitled: boolean;
+  /** A charge is still being processed by Wompi (e.g. right after reactivating). */
+  pendingCharge: boolean;
+}
+
+/**
+ * Whether the signed-in consumer may use the app (memoized per render). A
+ * pending charge counts as access so a consumer who just re-entered a card is
+ * not sent back to the card form while Wompi confirms the payment; a declined
+ * charge ends it on the next request.
+ */
+export const getConsumerAccess = cache(async (): Promise<ConsumerAccess> => {
+  const subscription = await getOwnSubscription();
+  if (!subscription) {
+    return { subscription: null, entitled: false, pendingCharge: false };
+  }
+  const entitled = isEntitled(subscription);
+  let pendingCharge = false;
+  if (!entitled) {
+    const { supabase } = await getSession();
+    const { count } = await supabase
+      .from('payments')
+      .select('id', { count: 'exact', head: true })
+      .eq('subscription_id', subscription.id)
+      .eq('status', 'pending');
+    pendingCharge = (count ?? 0) > 0;
+  }
+  return { subscription, entitled, pendingCharge };
+});
 
 const PAYMENT_STATUS: Record<
   WompiTransactionStatus,
