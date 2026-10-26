@@ -2,7 +2,7 @@
 
 ## Model
 
-- Supabase Auth with `@supabase/ssr` cookies. One app (`apps/web`), one login (`/login`) for every role. Email/password everywhere; Google OAuth button on `/login` (Google sign-ups become consumers; provider must be configured in the Supabase dashboard). Apple deferred post-launch.
+- Supabase Auth with `@supabase/ssr` cookies. One app (`apps/web`), one login (`/login`) for every role. Email/password everywhere; the Google OAuth button is hidden since 2026-10-26 (provider not configured; `googleAction` still exists, pass it to `LoginForm`/`SignupForm` to show it again) and was on `/login` (Google sign-ups become consumers; provider must be configured in the Supabase dashboard). Apple deferred post-launch.
 - Roles: `consumer` | `business` | `admin`, stored in `public.profiles.role` **and** mirrored into the JWT `app_metadata.role` by database triggers. `business` is requested by passing `options.data.role = 'business'` to `signUp` (`businessSignupAction`, from `/empresa/registro` only); everything else becomes `consumer`; `admin` only via SQL.
 - Read the role with `roleFromClaims(claims)` from `@org/supabase`.
 

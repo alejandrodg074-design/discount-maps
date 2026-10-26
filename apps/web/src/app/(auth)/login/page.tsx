@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { BackIcon, Brand, LoginForm, PageShell, TopBar } from '@org/ui';
-import { googleAction, loginAction } from '../../auth/actions';
+import { loginAction } from '../../auth/actions';
 
 const MESSAGES: Record<string, string> = {
   confirma:
@@ -48,7 +48,6 @@ export default async function LoginPage({
       ) : null}
       <LoginForm
         action={loginAction}
-        googleAction={googleAction}
         registerHref="/registro"
         next={params.next}
       />
