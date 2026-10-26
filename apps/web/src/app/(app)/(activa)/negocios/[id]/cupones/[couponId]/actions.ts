@@ -6,7 +6,7 @@ import {
   parseCouponToken,
   type IssueTokenError,
 } from '@org/domain';
-import { getSession, isUuid } from '../../../../../../lib/session';
+import { getSession, isUuid } from '../../../../../../../lib/session';
 
 export type IssueTokenResult =
   { token: string } | { error: IssueTokenError | 'UNKNOWN'; message: string };

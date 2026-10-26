@@ -10,8 +10,8 @@ import {
 } from '@org/domain';
 import { createAdminSupabase } from '@org/supabase/server';
 import type { AuthActionState } from '@org/ui';
-import { getOwnSubscription } from '../../../../lib/billing';
-import { getSession } from '../../../../lib/session';
+import { getOwnSubscription } from '../../../../../lib/billing';
+import { getSession } from '../../../../../lib/session';
 
 function text(formData: FormData, key: string): string {
   const v = formData.get(key);

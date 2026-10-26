@@ -16,8 +16,8 @@ import {
   listBranches,
   listLiveCoupons,
   logoUrl,
-} from '../../../../lib/businesses';
-import { getSession } from '../../../../lib/session';
+} from '../../../../../lib/businesses';
+import { getSession } from '../../../../../lib/session';
 import { NotifyToggle } from './notify-toggle';
 
 export const dynamic = 'force-dynamic';
