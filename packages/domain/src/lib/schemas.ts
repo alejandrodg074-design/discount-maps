@@ -25,7 +25,13 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
-export const consumerSignupSchema = z.object({ fullName, email, password });
+/** Sign-up (both roles): the password is typed twice so a typo cannot lock the user out. */
+export const consumerSignupSchema = z
+  .object({ fullName, email, password, confirm: z.string() })
+  .refine((v) => v.password === v.confirm, {
+    path: ['confirm'],
+    message: 'Las contraseñas no coinciden.',
+  });
 export type ConsumerSignupInput = z.infer<typeof consumerSignupSchema>;
 
 export const businessSignupSchema = z.object({

@@ -48,6 +48,7 @@ async function signUp(
     fullName: formData.get('fullName'),
     email: formData.get('email'),
     password: formData.get('password'),
+    confirm: formData.get('confirm'),
   });
   if (!parsed.success) {
     return { fieldErrors: fieldErrorMap(parsed.error) };

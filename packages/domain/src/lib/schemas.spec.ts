@@ -3,6 +3,7 @@ import {
   branchSchema,
   businessProfileSchema,
   businessSignupSchema,
+  consumerSignupSchema,
   couponSchema,
   onboardingSchema,
   passwordChangeSchema,
@@ -66,6 +67,31 @@ describe('couponSchema', () => {
     expect(
       couponSchema.safeParse({ ...base, title: 'x'.repeat(61) }).success,
     ).toBe(false);
+  });
+});
+
+describe('consumerSignupSchema', () => {
+  const base = {
+    fullName: 'Ana Pérez',
+    email: 'ana@test.dev',
+    password: 'secreta123',
+    confirm: 'secreta123',
+  };
+
+  it('accepts matching passwords', () => {
+    expect(consumerSignupSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('flags the confirmation when the passwords differ', () => {
+    const result = consumerSignupSchema.safeParse({
+      ...base,
+      confirm: 'secreta124',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['confirm']);
+    expect(result.error?.issues[0]?.message).toBe(
+      'Las contraseñas no coinciden.',
+    );
   });
 });
 
