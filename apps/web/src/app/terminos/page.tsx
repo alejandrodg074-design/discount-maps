@@ -4,7 +4,6 @@ import {
   CHARGE_RETRY_DAYS,
   MAX_CHARGE_ATTEMPTS,
   MIN_ACTIVE_COUPONS,
-  PAST_DUE_GRACE_DAYS,
   TRIAL_DAYS,
   formatCop,
 } from '@org/domain';
@@ -116,11 +115,12 @@ export default function TermsPage() {
             puedas reconocerla.
           </li>
           <li>
-            <strong>Si un cobro falla</strong>, lo reintentaremos cada{' '}
-            {CHARGE_RETRY_DAYS} días hasta {MAX_CHARGE_ATTEMPTS} intentos.
-            Conservas el acceso durante {PAST_DUE_GRACE_DAYS} días después del
-            vencimiento del periodo; si el pago no se logra, la suscripción se
-            cancela y podrás reactivarla registrando una tarjeta.
+            <strong>Si un cobro falla</strong>, el acceso a los cupones se
+            suspende de inmediato hasta que el pago se logre. Puedes registrar
+            otra tarjeta en cualquier momento para pagar al instante; además lo
+            reintentaremos cada {CHARGE_RETRY_DAYS} días hasta{' '}
+            {MAX_CHARGE_ATTEMPTS} intentos. Si ninguno funciona, la suscripción
+            se cancela y podrás reactivarla registrando una tarjeta.
           </li>
           <li>
             <strong>Cancelación:</strong> puedes cancelar cuando quieras desde
