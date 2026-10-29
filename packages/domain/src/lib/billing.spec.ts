@@ -312,16 +312,25 @@ describe('reactivating a lapsed subscription', () => {
     expect(patch?.next_charge_at).toEqual(new Date('2026-11-26T22:00:00Z'));
   });
 
-  it('keeps the cycle for retries inside the past_due grace', () => {
+  it('keeps the cycle for a charge on the day the period ends', () => {
     const late = sub({
+      status: 'active',
+      current_period_end: new Date(NOW.getTime() - 3 * 3_600_000),
+      charge_attempts: 0,
+    });
+    const end = new Date(NOW.getTime() - 3 * 3_600_000);
+    expect(chargePeriodStart(late, NOW)).toEqual(end);
+    expect(planCharge(late, NOW).periodEnd).toEqual(addMonths(end, 1));
+  });
+
+  it('starts a fresh month for a retry days after a decline (access was cut)', () => {
+    const retry = sub({
       status: 'past_due',
       current_period_end: addDays(NOW, -4),
       charge_attempts: 2,
     });
-    expect(chargePeriodStart(late, NOW)).toEqual(addDays(NOW, -4));
-    expect(planCharge(late, NOW).periodEnd).toEqual(
-      addMonths(addDays(NOW, -4), 1),
-    );
+    expect(chargePeriodStart(retry, NOW)).toEqual(NOW);
+    expect(planCharge(retry, NOW).periodEnd).toEqual(addMonths(NOW, 1));
   });
 
   it('APPROVED uses the period recorded on the payment when given', () => {

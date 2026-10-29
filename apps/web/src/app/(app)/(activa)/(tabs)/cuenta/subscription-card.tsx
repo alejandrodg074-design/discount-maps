@@ -17,7 +17,7 @@ export interface SubscriptionCardProps {
   cardLast4: string | null;
   /** False during the free week when no card was registered yet. */
   hasCard: boolean;
-  /** ISO timestamps (already computed on the server). */
+  /** End of the paid period / trial (what is kept after canceling). ISO. */
   accessUntil: string | null;
   nextChargeAt: string | null;
   trialEndsAt: string;
@@ -53,13 +53,11 @@ function describe(p: SubscriptionCardProps): string {
       return `Próximo cobro${amount}: ${nextCharge}.`;
     case 'past_due':
       if (p.pendingCharge) {
-        return `Estamos procesando el cobro${amount}${
-          until ? `. Tu acceso sigue hasta el ${until}` : ''
-        }.`;
+        return `Estamos procesando el cobro${amount}.`;
       }
-      return `No pudimos cobrar tu tarjeta. Volveremos a intentarlo el ${formatDate(
+      return `No pudimos cobrar tu tarjeta. Actualízala para seguir usando tus cupones; también lo volveremos a intentar el ${formatDate(
         p.nextChargeAt,
-      )}${until ? ` y tu acceso sigue hasta el ${until}` : ''}.`;
+      )}.`;
     case 'canceled':
       return p.accessUntil && new Date(p.accessUntil).getTime() > Date.now()
         ? `No haremos más cobros. Puedes seguir usando tus cupones hasta el ${until}.`

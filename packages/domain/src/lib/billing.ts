@@ -8,7 +8,6 @@ import {
   addDays,
   CHARGE_RETRY_DAYS,
   MAX_CHARGE_ATTEMPTS,
-  PAST_DUE_GRACE_DAYS,
   subscriptionAccessUntil,
   TRIAL_DAYS,
   type SubscriptionLike,
@@ -16,6 +15,12 @@ import {
 } from './subscription';
 
 export const SUBSCRIPTION_PERIOD_MONTHS = 1;
+/**
+ * A charge made within this many days of the period end keeps the monthly
+ * cycle (the hourly run, a same-day card update). Later ones (retries after a
+ * decline, when access was already cut) start a fresh month on the charge day.
+ */
+export const KEEP_CYCLE_DAYS = 1;
 export const PAYMENT_REFERENCE_PREFIX = 'sub';
 export const PAYMENT_CURRENCY = 'COP';
 
@@ -69,18 +74,18 @@ export function periodAnchor(s: SubscriptionLike): Date {
 }
 
 /**
- * Where the period paid by a charge made at `now` starts. On-time charges and
- * retries inside the past_due grace keep the cycle (`periodAnchor`). A
- * subscription that lapsed (anchor older than the grace, e.g. reactivated weeks
- * later) starts a fresh period now: otherwise "anchor + 1 month" can be only
- * days away and the consumer is charged again almost at once.
+ * Where the period paid by a charge made at `now` starts. Charges within
+ * `KEEP_CYCLE_DAYS` of the anchor keep the cycle (`periodAnchor`). Later ones
+ * (a retry after a decline, a reactivation weeks later: access was cut
+ * meanwhile) start a fresh period now: otherwise "anchor + 1 month" can be only
+ * days away and the consumer pays for days they could not use.
  */
 export function chargePeriodStart(
   s: SubscriptionLike,
   now: Date = new Date(),
 ): Date {
   const anchor = periodAnchor(s);
-  return addDays(anchor, PAST_DUE_GRACE_DAYS).getTime() < now.getTime()
+  return addDays(anchor, KEEP_CYCLE_DAYS).getTime() < now.getTime()
     ? now
     : anchor;
 }
