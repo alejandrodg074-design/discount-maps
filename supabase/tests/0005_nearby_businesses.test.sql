@@ -21,12 +21,12 @@ select pg_temp.create_user('00000000-0000-4000-8000-000000000042', 'owner-a@test
 select pg_temp.create_user('00000000-0000-4000-8000-000000000043', 'owner-b@test.dev', 'business');
 select pg_temp.create_user('00000000-0000-4000-8000-000000000044', 'owner-c@test.dev', 'business');
 
--- Business A (restaurants): branch at the origin + a branch ~17 km north; best coupon 20 %.
+-- Business A (food): branch at the origin + a branch ~17 km north; best coupon 20 %.
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000042","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-000000000042',
-        'Asados A SAS', 'Asados A', '900000005-1', 'restaurants');
+        'Asados A SAS', 'Asados A', '900000005-1', 'food');
 select public.add_branch('00000000-0000-4000-8000-0000000000d1', 'A centro', 'Cra 7 # 60-10', 'Bogotá', 4.6486, -74.0628);
 select public.add_branch('00000000-0000-4000-8000-0000000000d1', 'A norte',  'Cll 200 # 1-1',  'Bogotá', 4.8000, -74.0600);
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
@@ -34,21 +34,21 @@ insert into public.coupons (id, business_id, title, discount_type, discount_valu
   ('00000000-0000-4000-8000-0000000000e2', '00000000-0000-4000-8000-0000000000d1', 'A diez',   'percentage', 10),
   ('00000000-0000-4000-8000-0000000000e3', '00000000-0000-4000-8000-0000000000d1', 'A fijo',   'fixed', 4000);
 
--- Business B (desserts): 500 m away but only 2 live coupons.
+-- Business B (food): 500 m away but only 2 live coupons.
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000043","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-000000000043',
-        'Postres B SAS', 'Postres B', '900000005-2', 'desserts');
+        'Postres B SAS', 'Postres B', '900000005-2', 'food');
 select public.add_branch('00000000-0000-4000-8000-0000000000d2', 'B única', 'Cll 63 # 7-1', 'Bogotá', 4.6531, -74.0628);
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
   ('00000000-0000-4000-8000-0000000000e4', '00000000-0000-4000-8000-0000000000d2', 'B uno', 'percentage', 15),
   ('00000000-0000-4000-8000-0000000000e5', '00000000-0000-4000-8000-0000000000d2', 'B dos', 'bogo', null);
 
--- Business C (beverages): ~2 km away; best coupon 50 %.
+-- Business C (nightlife): ~2 km away; best coupon 50 %.
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000044","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000d3', '00000000-0000-4000-8000-000000000044',
-        'Bebidas C SAS', 'Bebidas C', '900000005-3', 'beverages');
+        'Bebidas C SAS', 'Bebidas C', '900000005-3', 'nightlife');
 select public.add_branch('00000000-0000-4000-8000-0000000000d3', 'C única', 'Cll 80 # 7-1', 'Bogotá', 4.6666, -74.0628);
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
   ('00000000-0000-4000-8000-0000000000e6', '00000000-0000-4000-8000-0000000000d3', 'C cincuenta', 'percentage', 50),
@@ -81,7 +81,7 @@ select ok((select distance_m from public.nearby_businesses(4.6486, -74.0628, nul
             where business_id = '00000000-0000-4000-8000-0000000000d3') between 1900 and 2100,
           'distance is measured in metres');
 select is((select string_agg(distinct business_id::text, ',')
-             from public.nearby_businesses(4.6486, -74.0628, 'beverages', 5000, 'distance', 50)
+             from public.nearby_businesses(4.6486, -74.0628, 'nightlife', 5000, 'distance', 50)
             where business_id in ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-0000000000d3')),
           '00000000-0000-4000-8000-0000000000d3', 'category filter keeps only matching businesses');
 select is((with r as (select row_number() over () as rn, business_id

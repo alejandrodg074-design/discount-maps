@@ -44,7 +44,7 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000054","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000f0', '00000000-0000-4000-8000-000000000054',
-        'Pizzas QR SAS', 'Pizzas QR', '900000006-1', 'restaurants');
+        'Pizzas QR SAS', 'Pizzas QR', '900000006-1', 'food');
 insert into qr select 'branch', public.add_branch('00000000-0000-4000-8000-0000000000f0', 'Sede QR', 'Cra 1 # 1-1', 'Bogotá', 4.65, -74.06)::text;
 insert into public.coupons (id, business_id, title, discount_type, discount_value, is_active) values
   ('00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000f0', 'Martes QR',   'percentage', 20, true),

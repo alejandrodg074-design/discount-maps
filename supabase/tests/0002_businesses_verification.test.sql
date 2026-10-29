@@ -26,7 +26,7 @@ set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000012","r
 
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category, verification_status)
 values ('00000000-0000-4000-8000-0000000000b1', '00000000-0000-4000-8000-000000000012',
-        'Pizzas del Norte S.A.S.', 'Pizzas del Norte', '900123456-7', 'restaurants', 'verified');
+        'Pizzas del Norte S.A.S.', 'Pizzas del Norte', '900123456-7', 'food', 'verified');
 
 select is((select verification_status::text from public.businesses where id = '00000000-0000-4000-8000-0000000000b1'),
           'pending', 'owner cannot self-verify on insert');
