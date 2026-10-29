@@ -44,7 +44,7 @@ describe('useGeolocation', () => {
     expect(result.current.center).toEqual({ lat: 4.65, lng: -74.06 });
   });
 
-  it('falls back to Bogotá when permission is denied', () => {
+  it('falls back to Cali when permission is denied', () => {
     installGeolocation((_ok, fail) => fail(positionError(1)));
     const { result } = renderHook(() => useGeolocation());
     expect(result.current.status).toBe('denied');

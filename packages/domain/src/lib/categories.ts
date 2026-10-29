@@ -24,8 +24,11 @@ export const verificationStatusLabels: Record<VerificationStatus, string> = {
   rejected: 'Rechazado',
 };
 
-/** Default map center when geolocation is unavailable: Bogotá. */
-export const DEFAULT_MAP_CENTER = { lat: 4.711, lng: -74.0721 } as const;
+/** Default map center when geolocation is unavailable: Cali (where the first businesses are). */
+export const DEFAULT_MAP_CENTER = { lat: 3.4516, lng: -76.532 } as const;
+
+/** City prefilled in the branch forms (the autocomplete overwrites it). */
+export const DEFAULT_CITY = 'Cali';
 /**
  * Search radius of the consumer map: 200 km, so a consumer anywhere in Valle del
  * Cauca sees every business in the department (Cali to Cartago is ~190 km).
