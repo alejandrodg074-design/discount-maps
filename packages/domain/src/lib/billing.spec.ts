@@ -3,6 +3,7 @@ import {
   applyNewPaymentSource,
   applyPaymentOutcome,
   cancelSubscription,
+  cardlessTrial,
   chargePeriodStart,
   isChargeDue,
   parsePaymentReference,
@@ -12,6 +13,7 @@ import {
 } from './billing';
 import {
   addDays,
+  TRIAL_DAYS,
   CHARGE_RETRY_DAYS,
   MAX_CHARGE_ATTEMPTS,
 } from './subscription';
@@ -185,14 +187,44 @@ describe('cancelSubscription', () => {
 });
 
 describe('applyNewPaymentSource', () => {
-  it('only swaps the card on trialing / active subscriptions', () => {
-    expect(applyNewPaymentSource(sub({ status: 'trialing' }), NOW)).toBeNull();
+  it('only swaps the card on active subscriptions', () => {
     expect(
       applyNewPaymentSource(
         sub({ status: 'active', current_period_end: addDays(NOW, 10) }),
         NOW,
       ),
     ).toBeNull();
+  });
+
+  it('schedules the first charge at the end of a running trial', () => {
+    const trialEnd = addDays(NOW, 4);
+    expect(
+      applyNewPaymentSource(
+        sub({
+          status: 'trialing',
+          trial_ends_at: trialEnd,
+          next_charge_at: null,
+        }),
+        NOW,
+      ),
+    ).toEqual({
+      status: 'trialing',
+      next_charge_at: trialEnd,
+      charge_attempts: 0,
+    });
+  });
+
+  it('charges right away when the free week already ended', () => {
+    expect(
+      applyNewPaymentSource(
+        sub({
+          status: 'trialing',
+          trial_ends_at: addDays(NOW, -2),
+          next_charge_at: null,
+        }),
+        NOW,
+      ),
+    ).toEqual({ status: 'past_due', next_charge_at: NOW, charge_attempts: 0 });
   });
 
   it('resets attempts and makes a past_due subscription due now', () => {
@@ -311,5 +343,22 @@ describe('planCharge after a card update', () => {
     expect(plan.attempt).toBe(1);
     expect(plan.reference).toBe(paymentReference(ID, NOW, 4));
     expect(planCharge(s, NOW, 0).reference).toBe(paymentReference(ID, NOW, 1));
+  });
+});
+
+describe('cardlessTrial', () => {
+  it('opens the free week with nothing to charge', () => {
+    expect(cardlessTrial(NOW)).toEqual({
+      status: 'trialing',
+      trial_ends_at: addDays(NOW, TRIAL_DAYS),
+      next_charge_at: null,
+    });
+  });
+
+  it('is not charged by the billing run', () => {
+    const t = cardlessTrial(NOW);
+    expect(
+      isChargeDue(sub({ ...t, charge_attempts: 0 }), addDays(NOW, 30)),
+    ).toBe(false);
   });
 });
