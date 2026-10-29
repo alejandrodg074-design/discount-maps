@@ -103,7 +103,7 @@ describe('businessSignupSchema', () => {
     legalName: 'Pizzas del Norte S.A.S.',
     displayName: 'Pizzas del Norte',
     nit: '900123456-7',
-    category: 'restaurants',
+    category: 'food',
   };
 
   it('accepts a valid sign-up', () => {
@@ -131,7 +131,7 @@ describe('businessProfileSchema / onboardingSchema', () => {
     legalName: 'Pizzas del Norte S.A.S.',
     displayName: 'Pizzas del Norte',
     nit: '900123456-7',
-    category: 'restaurants',
+    category: 'food',
     description: '',
     phone: '',
   };

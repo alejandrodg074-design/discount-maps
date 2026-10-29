@@ -22,7 +22,7 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000032","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000b3', '00000000-0000-4000-8000-000000000032',
-        'Postres SAS', 'Dulce Norte', '900000002-2', 'desserts');
+        'Postres SAS', 'Dulce Norte', '900000002-2', 'food');
 
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
   ('00000000-0000-4000-8000-0000000000c1', '00000000-0000-4000-8000-0000000000b3', 'Cupón uno',  'percentage', 10),

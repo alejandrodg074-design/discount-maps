@@ -1,8 +1,15 @@
+/**
+ * Business categories offered in the app, in display order (chips, selects).
+ * Mirrors the enum `public.business_category`, which still holds the retired
+ * values `beverages` and `desserts` (merged into `food` on 2026-10-29 and
+ * blocked by the `businesses_category_current` check).
+ */
 export const CATEGORIES = [
-  { id: 'restaurants', label: 'Restaurantes' },
-  { id: 'beverages', label: 'Bebidas' },
-  { id: 'desserts', label: 'Postres' },
+  { id: 'food', label: 'Comida y bebidas' },
   { id: 'retail', label: 'Tiendas' },
+  { id: 'vehicles', label: 'Vehículos' },
+  { id: 'nightlife', label: 'Bares y discotecas' },
+  { id: 'pets', label: 'Mascotas' },
 ] as const;
 
 export type BusinessCategory = (typeof CATEGORIES)[number]['id'];
@@ -12,8 +19,17 @@ export const CATEGORY_IDS = CATEGORIES.map((c) => c.id) as [
   ...BusinessCategory[],
 ];
 
-export function categoryLabel(id: BusinessCategory): string {
-  return CATEGORIES.find((c) => c.id === id)?.label ?? id;
+/** Retired enum values and the category that replaced them. */
+const RETIRED_CATEGORIES: Record<string, BusinessCategory> = {
+  restaurants: 'food',
+  beverages: 'food',
+  desserts: 'food',
+};
+
+/** Spanish label; accepts any stored value (the database enum also has retired ones). */
+export function categoryLabel(id: string): string {
+  const current = RETIRED_CATEGORIES[id] ?? id;
+  return CATEGORIES.find((c) => c.id === current)?.label ?? id;
 }
 
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
