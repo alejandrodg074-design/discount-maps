@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { unstable_rethrow } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -15,6 +16,7 @@ import {
   Button,
   CouponCard,
   FormError,
+  ImageInputField,
   InputField,
   SelectField,
   TextareaField,
@@ -102,8 +104,19 @@ export function CouponForm({
       ?.files?.[0];
     if (file) fd.set('image', file);
     startTransition(async () => {
-      const r = await saveCouponAction(fd);
-      if (r) setResult(r);
+      try {
+        const r = await saveCouponAction(fd);
+        if (r) setResult(r);
+      } catch (error) {
+        // Let Next.js handle the success redirect; anything else (e.g. a body
+        // over the server limit) is explained instead of crashing the page.
+        unstable_rethrow(error);
+        console.error('[cupones] save failed', error);
+        setResult({
+          error:
+            'No pudimos guardar el cupón. Revisa tu conexión o prueba con otra imagen.',
+        });
+      }
     });
   });
 
@@ -196,16 +209,13 @@ export function CouponForm({
             {...register('validUntil')}
           />
         </div>
-        <InputField
+        <ImageInputField
           id="image"
           name="image"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
           label="Imagen (opcional)"
-          hint="PNG, JPG o WebP. Máximo 2 MB. Sin imagen se muestra el descuento en grande."
+          hint="PNG, JPG o WebP; las fotos grandes se ajustan solas. Sin imagen se muestra el descuento en grande."
           error={result.fieldErrors?.image}
-          onChange={(e) => {
-            const f = e.target.files?.[0];
+          onImageChange={(f) => {
             setImagePreview(
               f ? URL.createObjectURL(f) : (coupon?.image_url ?? null),
             );
