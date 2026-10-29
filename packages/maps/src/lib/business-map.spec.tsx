@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { BusinessMap } from './business-map';
+import { BusinessMap, viewportPoints } from './business-map';
 
 jest.mock('@vis.gl/react-google-maps', () => ({
   APIProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -63,5 +63,74 @@ describe('BusinessMap', () => {
     const dialog = container.querySelector('[role="dialog"]');
     expect(dialog?.textContent).toContain('Sede Chapinero');
     expect(dialog?.querySelector('a')?.getAttribute('href')).toBe('/x');
+  });
+});
+
+describe('BusinessMap user location', () => {
+  const me = { lat: 4.68, lng: -74.05 };
+
+  it('draws the viewer as a blue dot and offers "Mi ubicación"', () => {
+    const { container, getByRole } = render(
+      <BusinessMap
+        center={me}
+        markers={markers}
+        apiKey="k"
+        mapId="m"
+        userLocation={me}
+      />,
+    );
+    expect(container.querySelectorAll('[data-user-dot]').length).toBe(1);
+    expect(
+      getByRole('button', { name: 'Centrar en mi ubicación' }),
+    ).toBeTruthy();
+  });
+
+  it('asks for the position when it is not known yet', () => {
+    const onLocate = jest.fn();
+    const { container, getByRole } = render(
+      <BusinessMap
+        center={center}
+        markers={markers}
+        apiKey="k"
+        mapId="m"
+        onLocate={onLocate}
+      />,
+    );
+    expect(container.querySelectorAll('[data-user-dot]').length).toBe(0);
+    fireEvent.click(getByRole('button', { name: 'Centrar en mi ubicación' }));
+    expect(onLocate).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no locate button without a position or a way to get one', () => {
+    const { queryByRole } = render(
+      <BusinessMap center={center} markers={markers} apiKey="k" />,
+    );
+    expect(
+      queryByRole('button', { name: 'Centrar en mi ubicación' }),
+    ).toBeNull();
+  });
+});
+
+describe('viewportPoints', () => {
+  const far = { lat: 4.6, lng: -75.6 };
+  const near1 = { lat: 3.45, lng: -76.53 };
+  const near2 = { lat: 3.46, lng: -76.52 };
+  const mid = { lat: 3.9, lng: -76.3 };
+  const me = { lat: 3.451, lng: -76.531 };
+
+  it('keeps every marker when the viewer is unknown', () => {
+    expect(viewportPoints([far, near1], null)).toEqual([far, near1]);
+  });
+
+  it('keeps the viewer and only the closest markers', () => {
+    expect(viewportPoints([far, mid, near2, near1], me, 2)).toEqual([
+      me,
+      near1,
+      near2,
+    ]);
+  });
+
+  it('is just the viewer when there are no markers', () => {
+    expect(viewportPoints([], me)).toEqual([me]);
   });
 });
