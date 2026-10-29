@@ -50,6 +50,14 @@ export default async function UpdateCardPage() {
         ese día. Puedes cancelar cuando quieras.
       </>
     );
+  } else if (lapsed && subscription.status === 'past_due') {
+    intro = (
+      <>
+        No pudimos cobrar los <strong>{price}</strong> de tu suscripción.
+        Registra una tarjeta (puede ser la misma si ya tiene fondos) y
+        cobraremos ahora para que sigas usando tus cupones.
+      </>
+    );
   } else if (lapsed) {
     intro = (
       <>

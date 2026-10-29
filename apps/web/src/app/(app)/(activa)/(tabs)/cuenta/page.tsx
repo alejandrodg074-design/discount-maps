@@ -1,4 +1,3 @@
-import { subscriptionAccessUntil } from '@org/domain';
 import { Button, PageShell, PasswordForm, ProfileForm, TopBar } from '@org/ui';
 import {
   getOwnSubscription,
@@ -53,7 +52,7 @@ export default async function AccountPage({
           cardLast4={subscription.card_last4}
           hasCard={subscription.wompi_payment_source_id != null}
           accessUntil={
-            subscriptionAccessUntil(subscription)?.toISOString() ?? null
+            subscription.current_period_end ?? subscription.trial_ends_at
           }
           nextChargeAt={subscription.next_charge_at}
           trialEndsAt={subscription.trial_ends_at}
