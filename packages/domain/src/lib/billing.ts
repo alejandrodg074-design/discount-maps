@@ -10,6 +10,7 @@ import {
   MAX_CHARGE_ATTEMPTS,
   PAST_DUE_GRACE_DAYS,
   subscriptionAccessUntil,
+  TRIAL_DAYS,
   type SubscriptionLike,
   type SubscriptionStatus,
 } from './subscription';
@@ -219,17 +220,47 @@ export function cancelSubscription(
 }
 
 /**
- * "Actualizar tarjeta": what changes besides the payment source. Trialing and
- * active subscriptions only swap the card (null). A past_due one gets its
- * attempts reset and becomes due immediately. A canceled one is reactivated:
- * with time left it goes back to trialing/active and is charged at the end of
- * that period, otherwise it becomes past_due and due immediately.
+ * The free week every consumer gets on first entry, without a card
+ * (owner, 2026-10-29). Nothing is charged: `next_charge_at` stays null until a
+ * card is registered (`applyNewPaymentSource`).
+ */
+export function cardlessTrial(now: Date = new Date()): {
+  status: 'trialing';
+  trial_ends_at: Date;
+  next_charge_at: null;
+} {
+  return {
+    status: 'trialing',
+    trial_ends_at: addDays(now, TRIAL_DAYS),
+    next_charge_at: null,
+  };
+}
+
+/**
+ * "Actualizar tarjeta": what changes besides the payment source. Active
+ * subscriptions only swap the card (null). A trial still running is charged
+ * when it ends; a trial that already ended (the free week without a card)
+ * becomes past_due and due immediately. A past_due one gets its attempts reset
+ * and becomes due immediately. A canceled one is reactivated: with time left
+ * it goes back to trialing/active and is charged at the end of that period,
+ * otherwise it becomes past_due and due immediately.
  */
 export function applyNewPaymentSource(
   s: BillableSubscription,
   now: Date = new Date(),
 ): SubscriptionPatch | null {
-  if (s.status === 'trialing' || s.status === 'active') return null;
+  if (s.status === 'active') return null;
+  if (s.status === 'trialing') {
+    const trialEnd = toDate(s.trial_ends_at);
+    if (trialEnd && trialEnd.getTime() > now.getTime()) {
+      return {
+        status: 'trialing',
+        next_charge_at: trialEnd,
+        charge_attempts: 0,
+      };
+    }
+    return { status: 'past_due', next_charge_at: now, charge_attempts: 0 };
+  }
   if (s.status === 'past_due') {
     return { status: 'past_due', next_charge_at: now, charge_attempts: 0 };
   }

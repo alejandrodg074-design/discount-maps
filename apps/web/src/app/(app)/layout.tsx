@@ -5,7 +5,8 @@ import { getSession } from '../../lib/session';
 /**
  * Signed-in consumer area. proxy.ts already gates the session; this is defense
  * in depth for server rendering plus the trial gate: a consumer without a
- * subscription row (card not captured yet) is sent to /suscripcion/tarjeta.
+ * subscription row (first entry) is sent to /suscripcion/tarjeta, which opens
+ * the free week without a card.
  */
 export default async function AppLayout({
   children,
