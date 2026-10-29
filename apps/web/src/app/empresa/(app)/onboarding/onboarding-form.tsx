@@ -1,12 +1,13 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { CATEGORIES, MAX_BRANCHES } from '@org/domain';
+import { CATEGORIES, DEFAULT_CITY, MAX_BRANCHES } from '@org/domain';
 import { PlaceAutocompleteInput } from '@org/maps';
 import {
   Button,
   FieldShell,
   FormError,
+  ImageInputField,
   InputField,
   SelectField,
   TextareaField,
@@ -32,7 +33,7 @@ function emptyBranch(): BranchDraft {
     key: nextKey++,
     name: '',
     addressLine: '',
-    city: 'Bogotá',
+    city: DEFAULT_CITY,
     lat: '',
     lng: '',
     phone: '',
@@ -151,13 +152,10 @@ export function OnboardingForm({
           defaultValue={state.values?.phone}
           error={state.fieldErrors?.phone}
         />
-        <InputField
+        <ImageInputField
           id="logo"
           name="logo"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
           label="Logo (opcional)"
-          hint="PNG, JPG o WebP. Máximo 2 MB."
           error={state.fieldErrors?.logo}
         />
       </section>

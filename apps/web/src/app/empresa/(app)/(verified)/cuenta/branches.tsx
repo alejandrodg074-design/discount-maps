@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState, useTransition } from 'react';
-import { MAX_BRANCHES } from '@org/domain';
+import { DEFAULT_CITY, MAX_BRANCHES } from '@org/domain';
 import { PlaceAutocompleteInput } from '@org/maps';
 import {
   Button,
@@ -94,7 +94,7 @@ export function AddBranchForm({
   const [state, formAction, pending] = useActionState(action, initial);
   const [coords, setCoords] = useState({ lat: '', lng: '' });
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('Bogotá');
+  const [city, setCity] = useState<string>(DEFAULT_CITY);
   const [placeId, setPlaceId] = useState('');
   const [locError, setLocError] = useState<string | null>(null);
   const v = state.values ?? {};

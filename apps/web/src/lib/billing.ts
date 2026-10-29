@@ -9,11 +9,11 @@ import {
 } from '@org/billing-wompi';
 import {
   applyPaymentOutcome,
+  chargePeriodStart,
   isChargeDue,
   isEntitled,
   MAX_CHARGE_ATTEMPTS,
   PAYMENT_CURRENCY,
-  periodAnchor,
   planCharge,
   type BillableSubscription,
   type PaymentOutcome,
@@ -170,7 +170,12 @@ export async function recordPaymentOutcome(
     .eq('id', payment.subscription_id)
     .maybeSingle();
   if (!sub) return 'applied';
-  const patch = applyPaymentOutcome(sub as BillableSubscription, outcome, now);
+  const patch = applyPaymentOutcome(
+    sub as BillableSubscription,
+    outcome,
+    now,
+    payment.period_end,
+  );
   if (patch) {
     await admin
       .from('subscriptions')
@@ -249,7 +254,7 @@ export async function chargeSubscription(
   amountCents: number = subscriptionPriceCents(),
 ): Promise<ChargeResult> {
   if (!sub.wompi_payment_source_id) return 'skipped';
-  const periodStart = periodAnchor(sub as BillableSubscription);
+  const periodStart = chargePeriodStart(sub as BillableSubscription, now);
   const { count: priorPayments } = await admin
     .from('payments')
     .select('id', { count: 'exact', head: true })

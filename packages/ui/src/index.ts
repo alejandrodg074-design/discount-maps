@@ -6,6 +6,7 @@ export * from './lib/category-chips';
 export * from './lib/contact-links';
 export * from './lib/coupon-card';
 export * from './lib/field';
+export * from './lib/image-input';
 export * from './lib/install-hint';
 export * from './lib/page-shell';
 export * from './lib/qr-code';

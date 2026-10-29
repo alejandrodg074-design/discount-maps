@@ -32,38 +32,77 @@ export interface BusinessMapProps {
   apiKey?: string | null;
   /** `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`; enables Advanced Markers (branded pins). */
   mapId?: string | null;
+  /** The viewer's real position (not the fallback): drawn as a blue dot and kept in view. */
+  userLocation?: LatLng | null;
+  /**
+   * Asks for the position again (`useGeolocation().locate`). With it the map
+   * shows the "Mi ubicación" button even before the position is known.
+   */
+  onLocate?: () => void;
   className?: string;
 }
 
 const DEFAULT_ZOOM = 13;
 const SINGLE_MARKER_ZOOM = 15;
 const FIT_PADDING = 48;
+/** Branches kept in view next to the viewer (the closest ones). */
+export const NEAREST_IN_VIEW = 3;
+const USER_DOT_COLOR = '#2563eb';
 
-/** Keeps the viewport on the markers (or the center when there are none). */
+/** Squared planar distance: only used to rank nearby points. */
+function distance2(a: LatLng, b: LatLng): number {
+  const dLat = a.lat - b.lat;
+  const dLng = (a.lng - b.lng) * Math.cos((a.lat * Math.PI) / 180);
+  return dLat * dLat + dLng * dLng;
+}
+
+/**
+ * Points the viewport must show: every marker, or, when the viewer's position
+ * is known, the viewer plus the `nearest` closest markers (a 200 km search
+ * would otherwise zoom out to the whole region and lose the viewer).
+ */
+export function viewportPoints(
+  markers: readonly LatLng[],
+  userLocation?: LatLng | null,
+  nearest = NEAREST_IN_VIEW,
+): LatLng[] {
+  const all = markers.map(({ lat, lng }) => ({ lat, lng }));
+  if (!userLocation) return all;
+  const closest = [...all]
+    .sort((a, b) => distance2(a, userLocation) - distance2(b, userLocation))
+    .slice(0, nearest);
+  return [{ lat: userLocation.lat, lng: userLocation.lng }, ...closest];
+}
+
+/** Keeps the viewport on the markers and the viewer (or the center when there are none). */
 function Viewport({
   center,
   markers,
+  userLocation,
 }: {
   center: LatLng;
   markers: readonly BusinessMapMarker[];
+  userLocation: LatLng | null;
 }) {
   const map = useMap();
   const key = markers.map((m) => `${m.id}:${m.lat},${m.lng}`).join('|');
+  const userKey = userLocation ? `${userLocation.lat},${userLocation.lng}` : '';
   useEffect(() => {
     if (!map) return;
+    const points = viewportPoints(markers, userLocation);
     const fit = () => {
-      if (markers.length === 0) {
+      if (points.length === 0) {
         map.panTo(center);
         map.setZoom(DEFAULT_ZOOM);
         return;
       }
-      if (markers.length === 1) {
-        map.panTo({ lat: markers[0].lat, lng: markers[0].lng });
+      if (points.length === 1) {
+        map.panTo(points[0]);
         map.setZoom(SINGLE_MARKER_ZOOM);
         return;
       }
       const bounds = new google.maps.LatLngBounds();
-      for (const m of markers) bounds.extend({ lat: m.lat, lng: m.lng });
+      for (const p of points) bounds.extend(p);
       map.fitBounds(bounds, FIT_PADDING);
     };
     fit();
@@ -71,10 +110,93 @@ function Viewport({
     // computes a wrong zoom: fit once more when the map settles.
     const once = google.maps.event.addListenerOnce(map, 'idle', fit);
     return () => once.remove();
-    // markers are summarised by `key`; center only matters when there are none
+    // markers / user are summarised by `key` / `userKey`; center only matters when there are none
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, key, center.lat, center.lng]);
+  }, [map, key, userKey, center.lat, center.lng]);
   return null;
+}
+
+/** The viewer's position: a blue dot with a soft halo. */
+function UserDot({
+  position,
+  branded,
+}: {
+  position: LatLng;
+  branded: boolean;
+}) {
+  if (branded) {
+    return (
+      <AdvancedMarker position={position} title="Tú estás aquí" zIndex={1000}>
+        <span
+          data-user-dot
+          className="block size-5 rounded-full border-[3px] border-white shadow-[0_0_0_8px_rgba(37,99,235,0.2)]"
+          style={{ backgroundColor: USER_DOT_COLOR }}
+        />
+      </AdvancedMarker>
+    );
+  }
+  // Classic markers need a Symbol icon, built from the loaded Maps API.
+  const icon =
+    typeof google !== 'undefined'
+      ? {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: USER_DOT_COLOR,
+          fillOpacity: 1,
+          strokeColor: '#ffffff',
+          strokeWeight: 3,
+        }
+      : undefined;
+  return (
+    <Marker
+      position={position}
+      title="Tú estás aquí"
+      icon={icon}
+      zIndex={1000}
+    />
+  );
+}
+
+/** "Mi ubicación": re-centers on the viewer, or asks for the position first. */
+function LocateButton({
+  userLocation,
+  onLocate,
+}: {
+  userLocation: LatLng | null;
+  onLocate?: () => void;
+}) {
+  const map = useMap();
+  return (
+    <button
+      type="button"
+      aria-label="Centrar en mi ubicación"
+      title="Mi ubicación"
+      onClick={() => {
+        if (userLocation && map) {
+          map.panTo(userLocation);
+          map.setZoom(SINGLE_MARKER_ZOOM);
+        } else {
+          onLocate?.();
+        }
+      }}
+      className="absolute bottom-3 right-3 grid size-11 place-items-center rounded-full bg-white text-ink shadow-md"
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="4" fill={USER_DOT_COLOR} stroke="none" />
+        <circle cx="12" cy="12" r="8" />
+        <path d="M12 1v3M12 20v3M1 12h3M20 12h3" />
+      </svg>
+    </button>
+  );
 }
 
 function Placeholder({
@@ -109,6 +231,8 @@ export function BusinessMap({
   markers = [],
   apiKey,
   mapId,
+  userLocation = null,
+  onLocate,
   className = '',
 }: BusinessMapProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -125,7 +249,7 @@ export function BusinessMap({
       role="region"
       aria-label="Mapa"
       data-markers={markers.length}
-      className={`aspect-[16/10] w-full overflow-hidden rounded-card border border-line ${className}`}
+      className={`relative aspect-[16/10] w-full overflow-hidden rounded-card border border-line ${className}`}
     >
       <APIProvider apiKey={apiKey} language="es" region="CO">
         <Map
@@ -187,8 +311,18 @@ export function BusinessMap({
               </div>
             </InfoWindow>
           ) : null}
-          <Viewport center={center} markers={markers} />
+          {userLocation ? (
+            <UserDot position={userLocation} branded={branded} />
+          ) : null}
+          <Viewport
+            center={center}
+            markers={markers}
+            userLocation={userLocation}
+          />
         </Map>
+        {userLocation || onLocate ? (
+          <LocateButton userLocation={userLocation} onLocate={onLocate} />
+        ) : null}
       </APIProvider>
     </div>
   );

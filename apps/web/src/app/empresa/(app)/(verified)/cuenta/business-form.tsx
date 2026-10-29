@@ -6,6 +6,7 @@ import {
   Button,
   FormError,
   FormNotice,
+  ImageInputField,
   InputField,
   SelectField,
   TextareaField,
@@ -88,13 +89,10 @@ export function BusinessForm({
           />
         ) : null}
         <div className="flex-1">
-          <InputField
+          <ImageInputField
             id="logo"
             name="logo"
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
             label={logoUrl ? 'Cambiar logo' : 'Logo (opcional)'}
-            hint="PNG, JPG o WebP. Máximo 2 MB."
             error={state.fieldErrors?.logo}
           />
         </div>

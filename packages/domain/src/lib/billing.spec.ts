@@ -3,6 +3,7 @@ import {
   applyNewPaymentSource,
   applyPaymentOutcome,
   cancelSubscription,
+  chargePeriodStart,
   isChargeDue,
   parsePaymentReference,
   paymentReference,
@@ -254,6 +255,52 @@ describe('applyNewPaymentSource', () => {
       charge_attempts: 0,
       canceled_at: null,
     });
+  });
+});
+
+describe('reactivating a lapsed subscription', () => {
+  // The owner's case: trial ended 2026-09-29, card registered again on 10-26.
+  const lapsed = sub({
+    status: 'past_due',
+    trial_ends_at: new Date('2026-09-29T12:00:00Z'),
+    charge_attempts: 0,
+  });
+  const PAID_AT = new Date('2026-10-26T22:00:00Z');
+
+  it('starts the paid period on the day of the charge', () => {
+    expect(chargePeriodStart(lapsed, PAID_AT)).toEqual(PAID_AT);
+    const plan = planCharge(lapsed, PAID_AT);
+    expect(plan.periodStart).toEqual(PAID_AT);
+    expect(plan.periodEnd).toEqual(new Date('2026-11-26T22:00:00Z'));
+  });
+
+  it('APPROVED moves the next charge a full month after the payment', () => {
+    const patch = applyPaymentOutcome(lapsed, 'APPROVED', PAID_AT);
+    expect(patch?.current_period_end).toEqual(new Date('2026-11-26T22:00:00Z'));
+    expect(patch?.next_charge_at).toEqual(new Date('2026-11-26T22:00:00Z'));
+  });
+
+  it('keeps the cycle for retries inside the past_due grace', () => {
+    const late = sub({
+      status: 'past_due',
+      current_period_end: addDays(NOW, -4),
+      charge_attempts: 2,
+    });
+    expect(chargePeriodStart(late, NOW)).toEqual(addDays(NOW, -4));
+    expect(planCharge(late, NOW).periodEnd).toEqual(
+      addMonths(addDays(NOW, -4), 1),
+    );
+  });
+
+  it('APPROVED uses the period recorded on the payment when given', () => {
+    const recorded = new Date('2026-11-26T22:00:00Z');
+    const patch = applyPaymentOutcome(
+      lapsed,
+      'APPROVED',
+      new Date('2026-10-26T22:05:00Z'),
+      recorded.toISOString(),
+    );
+    expect(patch?.current_period_end).toEqual(recorded);
   });
 });
 

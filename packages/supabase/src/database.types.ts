@@ -688,7 +688,15 @@ export type Database = {
       };
     };
     Enums: {
-      business_category: 'restaurants' | 'beverages' | 'desserts' | 'retail';
+      business_category:
+        | 'food'
+        | 'beverages'
+        | 'desserts'
+        | 'retail'
+        | 'vehicles'
+        | 'nightlife'
+        | 'pets'
+        | 'beauty';
       discount_type: 'percentage' | 'fixed' | 'bogo' | 'other';
       payment_status: 'pending' | 'approved' | 'declined' | 'voided' | 'error';
       subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled';
@@ -824,7 +832,16 @@ export const Constants = {
   },
   public: {
     Enums: {
-      business_category: ['restaurants', 'beverages', 'desserts', 'retail'],
+      business_category: [
+        'food',
+        'beverages',
+        'desserts',
+        'retail',
+        'vehicles',
+        'nightlife',
+        'pets',
+        'beauty',
+      ],
       discount_type: ['percentage', 'fixed', 'bogo', 'other'],
       payment_status: ['pending', 'approved', 'declined', 'voided', 'error'],
       subscription_status: ['trialing', 'active', 'past_due', 'canceled'],

@@ -23,7 +23,7 @@ set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000022","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000b2', '00000000-0000-4000-8000-000000000022',
-        'Café Central S.A.S.', 'Café Central', '900000001-1', 'beverages');
+        'Café Central S.A.S.', 'Café Central', '900000001-1', 'food');
 
 select lives_ok(
   $$ select public.add_branch('00000000-0000-4000-8000-0000000000b2', 'Sede Chapinero', 'Cra 7 # 60-10', 'Bogotá', 4.6486, -74.0628) $$,

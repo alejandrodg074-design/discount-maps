@@ -31,7 +31,7 @@ export interface PlaceAutocompleteInputProps extends Omit<
   value: string;
   onChange: (text: string) => void;
   onSelect: (place: SelectedPlace) => void;
-  /** Bias suggestions around this point (defaults to Bogotá). */
+  /** Bias suggestions around this point (defaults to Cali). */
   bias?: { lat: number; lng: number };
   className?: string;
 }

@@ -99,9 +99,11 @@ export default function TermsPage() {
           </li>
           <li>
             <strong>Prueba gratis:</strong> los primeros {TRIAL_DAYS} días son
-            gratis. Para empezarlos debes registrar una tarjeta. Si no cancelas
-            antes de que termine la prueba, al finalizar se hará el primer cobro
-            mensual.
+            gratis y no necesitas tarjeta para empezarlos. Cuando la prueba
+            termina, para seguir usando los cupones debes registrar una tarjeta
+            y en ese momento se hace el primer cobro mensual. Si registras la
+            tarjeta antes, el primer cobro se hará el día en que termine la
+            prueba, salvo que canceles antes.
           </li>
           <li>
             <strong>Renovación automática:</strong> la suscripción se renueva

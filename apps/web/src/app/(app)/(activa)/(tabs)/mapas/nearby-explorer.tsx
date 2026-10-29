@@ -62,6 +62,8 @@ export function NearbyExplorer({
         center={geo.center}
         apiKey={apiKey}
         mapId={mapId}
+        userLocation={geo.isFallback ? null : geo.center}
+        onLocate={geo.locate}
         markers={(rows ?? [])
           .filter((r) => r.lat != null && r.lng != null)
           .map((r) => ({
