@@ -94,6 +94,9 @@ export interface SignupFormProps {
   /** Extra fields rendered between the personal fields and the submit button. */
   children?: React.ReactNode;
   submitLabel?: string;
+  /** Legal pages linked from the acceptance checkbox (open in a new tab). */
+  termsHref?: string;
+  privacyHref?: string;
 }
 
 export function SignupForm({
@@ -102,6 +105,8 @@ export function SignupForm({
   loginHref,
   children,
   submitLabel = 'Crear cuenta',
+  termsHref = '/terminos',
+  privacyHref = '/privacidad',
 }: SignupFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
   const [showPassword, setShowPassword] = useState(false);
@@ -153,6 +158,11 @@ export function SignupForm({
           controls="password confirm"
         />
         {children}
+        <TermsCheckbox
+          termsHref={termsHref}
+          privacyHref={privacyHref}
+          error={state.fieldErrors?.acceptTerms}
+        />
         <FormError message={state.error} />
         <Button type="submit" block loading={pending}>
           {submitLabel}
@@ -171,6 +181,58 @@ export function SignupForm({
           Iniciar sesión
         </a>
       </p>
+    </div>
+  );
+}
+
+/**
+ * Required acceptance of the terms and the data policy (Ley 1581 needs a prior,
+ * express authorization). Links open in a new tab so the typed form survives.
+ */
+function TermsCheckbox({
+  termsHref,
+  privacyHref,
+  error,
+}: {
+  termsHref: string;
+  privacyHref: string;
+  error?: string;
+}) {
+  const link = 'font-semibold text-brand-600 underline';
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="flex items-start gap-3 text-sm text-ink">
+        <input
+          type="checkbox"
+          id="acceptTerms"
+          name="acceptTerms"
+          required
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? 'acceptTerms-error' : undefined}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-brand-600"
+        />
+        <span>
+          Acepto los{' '}
+          <a href={termsHref} target="_blank" rel="noreferrer" className={link}>
+            Términos y condiciones
+          </a>{' '}
+          y autorizo el tratamiento de mis datos según la{' '}
+          <a
+            href={privacyHref}
+            target="_blank"
+            rel="noreferrer"
+            className={link}
+          >
+            Política de datos
+          </a>
+          .
+        </span>
+      </label>
+      {error ? (
+        <p id="acceptTerms-error" role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { ContactLinks, PageShell, TopBar } from '@org/ui';
+import { LegalLinks } from '../../../../../components/legal-page';
 
 export default function ContactPage() {
   return (
@@ -9,6 +10,7 @@ export default function ContactPage() {
         Escríbenos por cualquiera de estos canales.
       </p>
       <ContactLinks />
+      <LegalLinks />
     </PageShell>
   );
 }
