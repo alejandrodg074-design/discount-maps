@@ -1,6 +1,6 @@
 -- Business categories (owner, 2026-10-29): "Comida y bebidas" replaces
--- restaurants / beverages / desserts; new: vehicles, nightlife (bares y
--- discotecas), pets. Tiendas (retail) stays.
+-- restaurants / beverages / desserts; new: beauty (belleza), vehicles,
+-- nightlife (bares y discotecas), pets. Tiendas (retail) stays.
 --
 -- Postgres cannot drop enum values without rebuilding every dependent object
 -- (the businesses_public view, nearby_businesses), so `restaurants` is renamed
@@ -22,6 +22,7 @@ end $$;
 alter type public.business_category add value if not exists 'vehicles';
 alter type public.business_category add value if not exists 'nightlife';
 alter type public.business_category add value if not exists 'pets';
+alter type public.business_category add value if not exists 'beauty';
 
 update public.businesses set category = 'food' where category in ('beverages', 'desserts');
 
@@ -30,4 +31,4 @@ alter table public.businesses add constraint businesses_category_current
   check (category not in ('beverages', 'desserts'));
 
 comment on type public.business_category is
-  'food, retail, vehicles, nightlife, pets. beverages / desserts are retired (merged into food) and rejected by businesses_category_current.';
+  'food, retail, beauty, vehicles, nightlife, pets. beverages / desserts are retired (merged into food) and rejected by businesses_category_current.';

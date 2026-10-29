@@ -23,9 +23,9 @@ select is(
   (select array_agg(e.enumlabel::text order by e.enumsortorder)
      from pg_enum e join pg_type t on t.oid = e.enumtypid
     where t.typname = 'business_category'
-      and e.enumlabel in ('food', 'retail', 'vehicles', 'nightlife', 'pets')),
-  array['food', 'retail', 'vehicles', 'nightlife', 'pets'],
-  'the five current categories exist');
+      and e.enumlabel in ('food', 'retail', 'vehicles', 'nightlife', 'pets', 'beauty')),
+  array['food', 'retail', 'vehicles', 'nightlife', 'pets', 'beauty'],
+  'the six current categories exist');
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000091","role":"authenticated"}';

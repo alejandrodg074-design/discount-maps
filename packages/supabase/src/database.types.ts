@@ -695,7 +695,8 @@ export type Database = {
         | 'retail'
         | 'vehicles'
         | 'nightlife'
-        | 'pets';
+        | 'pets'
+        | 'beauty';
       discount_type: 'percentage' | 'fixed' | 'bogo' | 'other';
       payment_status: 'pending' | 'approved' | 'declined' | 'voided' | 'error';
       subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled';
@@ -839,6 +840,7 @@ export const Constants = {
         'vehicles',
         'nightlife',
         'pets',
+        'beauty',
       ],
       discount_type: ['percentage', 'fixed', 'bogo', 'other'],
       payment_status: ['pending', 'approved', 'declined', 'voided', 'error'],

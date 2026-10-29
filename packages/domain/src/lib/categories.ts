@@ -7,6 +7,7 @@
 export const CATEGORIES = [
   { id: 'food', label: 'Comida y bebidas' },
   { id: 'retail', label: 'Tiendas' },
+  { id: 'beauty', label: 'Belleza' },
   { id: 'vehicles', label: 'Vehículos' },
   { id: 'nightlife', label: 'Bares y discotecas' },
   { id: 'pets', label: 'Mascotas' },

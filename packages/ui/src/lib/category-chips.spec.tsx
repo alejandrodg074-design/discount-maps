@@ -2,10 +2,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { CategoryChips } from './category-chips';
 
 describe('CategoryChips', () => {
-  it('renders "Todas" plus the five categories with the selection pressed', () => {
+  it('renders "Todas" plus the six categories with the selection pressed', () => {
     render(<CategoryChips value="pets" onChange={() => undefined} />);
     const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBe(6);
+    expect(buttons.length).toBe(7);
     expect(
       screen
         .getByRole('button', { name: 'Mascotas' })
