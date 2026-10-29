@@ -12,7 +12,7 @@ export type GeolocationStatus =
   'idle' | 'locating' | 'granted' | 'denied' | 'unavailable' | 'timeout';
 
 export interface GeolocationState {
-  /** The user's position, or the Bogotá fallback until one is granted. */
+  /** The user's position, or the Cali fallback until one is granted. */
   center: LatLng;
   status: GeolocationStatus;
   /** True whenever `center` is not the user's real position. */
