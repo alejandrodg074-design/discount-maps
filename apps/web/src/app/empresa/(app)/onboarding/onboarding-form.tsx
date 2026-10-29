@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { CATEGORIES, MAX_BRANCHES } from '@org/domain';
+import { CATEGORIES, DEFAULT_CITY, MAX_BRANCHES } from '@org/domain';
 import { PlaceAutocompleteInput } from '@org/maps';
 import {
   Button,
@@ -32,7 +32,7 @@ function emptyBranch(): BranchDraft {
     key: nextKey++,
     name: '',
     addressLine: '',
-    city: 'Bogotá',
+    city: DEFAULT_CITY,
     lat: '',
     lng: '',
     phone: '',

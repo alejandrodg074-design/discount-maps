@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { categoryLabel } from '@org/domain';
+import { categoryLabel, DEFAULT_MAP_CENTER } from '@org/domain';
 import { BusinessMap, googleMapsDirectionsUrl, wazeUrl } from '@org/maps';
 import {
   BackIcon,
@@ -98,7 +98,7 @@ export default async function BusinessPage({
         center={
           located[0]
             ? { lat: located[0].lat, lng: located[0].lng }
-            : { lat: 4.711, lng: -74.0721 }
+            : DEFAULT_MAP_CENTER
         }
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || null}
         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || null}
