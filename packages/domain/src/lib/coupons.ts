@@ -6,7 +6,7 @@
 export type DiscountType = 'percentage' | 'fixed' | 'bogo' | 'other';
 
 /** A verified business must keep at least this many live coupons to stay on the map. */
-export const MIN_ACTIVE_COUPONS = 3;
+export const MIN_ACTIVE_COUPONS = 2;
 /** Reference ticket used to score fixed-amount discounts against percentages. */
 export const FIXED_DISCOUNT_REFERENCE_TICKET_COP = 40_000;
 
