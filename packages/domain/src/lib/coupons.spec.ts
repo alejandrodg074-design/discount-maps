@@ -59,16 +59,17 @@ describe('canDeactivateCoupon', () => {
   it('unverified businesses may always deactivate', () => {
     expect(canDeactivateCoupon(1, false)).toBe(true);
   });
-  it('verified businesses must keep 3 live coupons', () => {
-    expect(canDeactivateCoupon(3, true)).toBe(false);
-    expect(canDeactivateCoupon(4, true)).toBe(true);
+  it('verified businesses must keep 2 live coupons', () => {
+    expect(canDeactivateCoupon(2, true)).toBe(false);
+    expect(canDeactivateCoupon(3, true)).toBe(true);
   });
 });
 
 describe('missingActiveCoupons', () => {
   it('counts up to the minimum and never below zero', () => {
-    expect(missingActiveCoupons(0)).toBe(3);
-    expect(missingActiveCoupons(2)).toBe(1);
+    expect(missingActiveCoupons(0)).toBe(2);
+    expect(missingActiveCoupons(1)).toBe(1);
+    expect(missingActiveCoupons(2)).toBe(0);
     expect(missingActiveCoupons(5)).toBe(0);
   });
 });

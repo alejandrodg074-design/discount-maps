@@ -1,4 +1,4 @@
--- pgTAP: the minimum-3-live-coupons rule for verified businesses.
+-- pgTAP: the minimum-2-live-coupons rule for verified businesses (was 3 until 2026-10-30).
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(8);
@@ -26,12 +26,11 @@ values ('00000000-0000-4000-8000-0000000000b3', '00000000-0000-4000-8000-0000000
 
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
   ('00000000-0000-4000-8000-0000000000c1', '00000000-0000-4000-8000-0000000000b3', 'Cupón uno',  'percentage', 10),
-  ('00000000-0000-4000-8000-0000000000c2', '00000000-0000-4000-8000-0000000000b3', 'Cupón dos',  'percentage', 20),
-  ('00000000-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-0000000000b3', 'Cupón tres', 'bogo', null);
+  ('00000000-0000-4000-8000-0000000000c2', '00000000-0000-4000-8000-0000000000b3', 'Cupón dos',  'percentage', 20);
 
 -- pending business: may deactivate freely
 select lives_ok($$ update public.coupons set is_active = false where id = '00000000-0000-4000-8000-0000000000c1' $$,
-                'a pending business can deactivate below 3');
+                'a pending business can deactivate below 2');
 update public.coupons set is_active = true where id = '00000000-0000-4000-8000-0000000000c1';
 
 -- not on the map while pending
@@ -46,22 +45,22 @@ update public.businesses set verification_status = 'verified' where id = '000000
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000031","role":"authenticated"}';
 select is((select active_coupon_count from public.businesses_public where id = '00000000-0000-4000-8000-0000000000b3')::int,
-          3, 'verified business with 3 live coupons is public');
+          2, 'verified business with 2 live coupons is public');
 
--- verified owner: cannot drop below 3
+-- verified owner: cannot drop below 2
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000032","role":"authenticated"}';
 select throws_ok($$ update public.coupons set is_active = false where id = '00000000-0000-4000-8000-0000000000c1' $$,
-                 'P0001', 'MIN_ACTIVE_COUPONS', 'verified business cannot deactivate the third live coupon');
+                 'P0001', 'MIN_ACTIVE_COUPONS', 'verified business cannot deactivate the second live coupon');
 select throws_ok($$ delete from public.coupons where id = '00000000-0000-4000-8000-0000000000c1' $$,
-                 'P0001', 'MIN_ACTIVE_COUPONS', 'verified business cannot delete the third live coupon');
+                 'P0001', 'MIN_ACTIVE_COUPONS', 'verified business cannot delete the second live coupon');
 select lives_ok($$ update public.coupons set title = 'Cupón uno (editado)' where id = '00000000-0000-4000-8000-0000000000c1' $$,
                 'editing a live coupon without deactivating is fine');
 
--- with a fourth live coupon, one can be deactivated
+-- with a third live coupon, one can be deactivated
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
-  ('00000000-0000-4000-8000-0000000000c4', '00000000-0000-4000-8000-0000000000b3', 'Cupón cuatro', 'fixed', 5000);
+  ('00000000-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-0000000000b3', 'Cupón tres', 'fixed', 5000);
 select lives_ok($$ update public.coupons set is_active = false where id = '00000000-0000-4000-8000-0000000000c1' $$,
-                'with 4 live coupons one can be deactivated');
+                'with 3 live coupons one can be deactivated');
 
 -- direct SQL bypasses the rule
 reset role;
