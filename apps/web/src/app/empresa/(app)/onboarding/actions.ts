@@ -1,20 +1,14 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import {
-  fieldErrorMap,
-  LOGO_MAX_BYTES,
-  LOGO_MIME_TYPES,
-  onboardingSchema,
-} from '@org/domain';
+import { fieldErrorMap, onboardingSchema } from '@org/domain';
 import type { AuthActionState } from '@org/ui';
 import { getOwnBusiness, getSession } from '../../../../lib/business';
-
-const EXT: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/webp': 'webp',
-};
+import {
+  logoFileError,
+  logoFromForm,
+  uploadBusinessLogo,
+} from '../../../../lib/logo';
 
 function text(formData: FormData, key: string): string {
   const v = formData.get(key);
@@ -72,21 +66,10 @@ export async function createBusinessAction(
     };
   }
 
-  const logo = formData.get('logo');
-  const hasLogo = logo instanceof File && logo.size > 0;
-  if (hasLogo) {
-    if (!(LOGO_MIME_TYPES as readonly string[]).includes(logo.type)) {
-      return {
-        values,
-        fieldErrors: { logo: 'El logo debe ser PNG, JPG o WebP.' },
-      };
-    }
-    if (logo.size > LOGO_MAX_BYTES) {
-      return {
-        values,
-        fieldErrors: { logo: 'El logo debe pesar máximo 2 MB.' },
-      };
-    }
+  const logo = logoFromForm(formData);
+  const logoError = logo ? logoFileError(logo) : null;
+  if (logoError) {
+    return { values, fieldErrors: { logo: logoError } };
   }
 
   const { data: business, error: insertError } = await supabase
@@ -123,17 +106,12 @@ export async function createBusinessAction(
     }
   }
 
-  if (hasLogo) {
-    const path = `${business.id}/logo.${EXT[logo.type]}`;
-    const { error: uploadError } = await supabase.storage
-      .from('logos')
-      .upload(path, logo, { upsert: true, contentType: logo.type });
-    if (!uploadError) {
-      await supabase
-        .from('businesses')
-        .update({ logo_path: path })
-        .eq('id', business.id);
-    }
+  // The business already exists here: a failed logo must not block it, but the
+  // merchant is told on /empresa/pendiente and can upload it again there.
+  let logoFailed = false;
+  if (logo) {
+    const uploaded = await uploadBusinessLogo(supabase, business.id, logo);
+    logoFailed = 'error' in uploaded;
   }
 
   if (parsed.data.phone) {
@@ -143,5 +121,5 @@ export async function createBusinessAction(
       .eq('id', userId);
   }
 
-  redirect('/empresa/pendiente');
+  redirect(logoFailed ? '/empresa/pendiente?logo=error' : '/empresa/pendiente');
 }
