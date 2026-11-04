@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import { CATEGORIES, DEFAULT_CITY, MAX_BRANCHES } from '@org/domain';
 import { PlaceAutocompleteInput } from '@org/maps';
 import {
@@ -55,6 +55,8 @@ export function OnboardingForm({
   mapsApiKey: string | null;
 }) {
   const [state, formAction, pending] = useActionState(action, initial);
+  const [, startTransition] = useTransition();
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [branches, setBranches] = useState<BranchDraft[]>(() => [
     emptyBranch(),
   ]);
@@ -97,7 +99,18 @@ export function OnboardingForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-6" noValidate>
+    // Submitted by hand instead of `<form action>`: React resets a form after
+    // an action, and a file input cannot be refilled, so a failed first
+    // attempt (e.g. a branch without location) silently dropped the logo.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => formAction(fd));
+      }}
+      className="flex flex-col gap-6"
+      noValidate
+    >
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold text-ink">Tu empresa</h2>
         <InputField
@@ -152,12 +165,27 @@ export function OnboardingForm({
           defaultValue={state.values?.phone}
           error={state.fieldErrors?.phone}
         />
-        <ImageInputField
-          id="logo"
-          name="logo"
-          label="Logo (opcional)"
-          error={state.fieldErrors?.logo}
-        />
+        <div className="flex items-center gap-4">
+          {logoPreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoPreview}
+              alt="Vista previa del logo"
+              className="size-16 shrink-0 rounded-full border border-line object-cover"
+            />
+          ) : null}
+          <div className="flex-1">
+            <ImageInputField
+              id="logo"
+              name="logo"
+              label="Logo (opcional)"
+              error={state.fieldErrors?.logo}
+              onImageChange={(f) =>
+                setLogoPreview(f ? URL.createObjectURL(f) : null)
+              }
+            />
+          </div>
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">

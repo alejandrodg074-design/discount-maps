@@ -5,8 +5,6 @@ import {
   branchSchema,
   businessProfileSchema,
   fieldErrorMap,
-  LOGO_MAX_BYTES,
-  LOGO_MIME_TYPES,
   MAX_BRANCHES,
   MIN_BRANCHES_ERROR,
   passwordChangeSchema,
@@ -14,12 +12,11 @@ import {
 } from '@org/domain';
 import type { AuthActionState } from '@org/ui';
 import { getOwnBusiness, getSession } from '../../../../../lib/business';
-
-const EXT: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/webp': 'webp',
-};
+import {
+  logoFileError,
+  logoFromForm,
+  uploadBusinessLogo,
+} from '../../../../../lib/logo';
 
 function text(formData: FormData, key: string): string {
   const v = formData.get(key);
@@ -47,36 +44,19 @@ export async function updateBusinessAction(
     return { fieldErrors: fieldErrorMap(parsed.error), values };
   }
 
-  const logo = formData.get('logo');
-  const hasLogo = logo instanceof File && logo.size > 0;
-  if (hasLogo) {
-    if (!(LOGO_MIME_TYPES as readonly string[]).includes(logo.type)) {
-      return {
-        values,
-        fieldErrors: { logo: 'El logo debe ser PNG, JPG o WebP.' },
-      };
-    }
-    if (logo.size > LOGO_MAX_BYTES) {
-      return {
-        values,
-        fieldErrors: { logo: 'El logo debe pesar máximo 2 MB.' },
-      };
-    }
+  const logo = logoFromForm(formData);
+  const logoError = logo ? logoFileError(logo) : null;
+  if (logoError) {
+    return { values, fieldErrors: { logo: logoError } };
   }
 
   let logoPath = business.logo_path;
-  if (hasLogo) {
-    const path = `${business.id}/logo.${EXT[logo.type]}`;
-    const { error: uploadError } = await supabase.storage
-      .from('logos')
-      .upload(path, logo, { upsert: true, contentType: logo.type });
-    if (uploadError) {
-      return {
-        values,
-        fieldErrors: { logo: 'No pudimos subir el logo. Intenta de nuevo.' },
-      };
+  if (logo) {
+    const uploaded = await uploadBusinessLogo(supabase, business.id, logo);
+    if ('error' in uploaded) {
+      return { values, fieldErrors: { logo: uploaded.error } };
     }
-    logoPath = path;
+    logoPath = uploaded.path;
   }
 
   const { error } = await supabase

@@ -4,8 +4,15 @@ import { publicStorageUrl } from '@org/supabase';
 import { Brand, Button, PageShell } from '@org/ui';
 import { signOutAction } from '../../../auth/actions';
 import { getOwnBusiness, getSession } from '../../../../lib/business';
+import { uploadPendingLogoAction } from './actions';
+import { PendingLogoForm } from './logo-form';
 
-export default async function PendingPage() {
+export default async function PendingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ logo?: string }>;
+}) {
+  const { logo: logoParam } = await searchParams;
   const { role } = await getSession();
   if (role === 'admin') redirect('/admin');
   const business = await getOwnBusiness();
@@ -14,6 +21,8 @@ export default async function PendingPage() {
 
   const rejected = business.verification_status === 'rejected';
   const logo = publicStorageUrl('logos', business.logo_path);
+  // ?logo=error: the business was created but its logo did not upload.
+  const logoFailed = logoParam === 'error' && !logo;
 
   return (
     <PageShell className="justify-center">
@@ -56,6 +65,16 @@ export default async function PendingPage() {
             </p>
           </>
         )}
+        {logoFailed ? (
+          <p
+            role="alert"
+            className="w-full rounded-card bg-danger/10 px-4 py-3 text-sm text-danger"
+          >
+            Tu empresa quedó registrada, pero no pudimos guardar el logo. Súbelo
+            de nuevo aquí abajo.
+          </p>
+        ) : null}
+        <PendingLogoForm action={uploadPendingLogoAction} hasLogo={!!logo} />
       </div>
       <form action={signOutAction} className="mt-8">
         <Button type="submit" variant="ghost" block>
