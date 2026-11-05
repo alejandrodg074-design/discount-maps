@@ -1,7 +1,8 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { categoryLabel, verificationStatusLabels } from '@org/domain';
 import { publicStorageUrl } from '@org/supabase';
-import { Brand, Button, EmptyState, PageShell } from '@org/ui';
+import { Brand, Button, buttonClassName, EmptyState, PageShell } from '@org/ui';
 import { signOutAction } from '../auth/actions';
 import { getSession } from '../../lib/business';
 import { verifyBusinessAction } from './actions';
@@ -29,6 +30,12 @@ export default async function AdminPage() {
   return (
     <PageShell>
       <Brand subtitle="Verificación de empresas" />
+      <Link
+        href="/admin/usuarios"
+        className={buttonClassName('secondary', 'mb-6 w-full')}
+      >
+        Usuarios y pagos
+      </Link>
 
       <h2 className="mb-3 text-lg font-semibold text-ink">
         Pendientes ({pending.length})

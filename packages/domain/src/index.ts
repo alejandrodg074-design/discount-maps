@@ -1,4 +1,5 @@
 export * from './lib/billing';
+export * from './lib/billing-view';
 export * from './lib/categories';
 export * from './lib/contact';
 export * from './lib/coupons';
