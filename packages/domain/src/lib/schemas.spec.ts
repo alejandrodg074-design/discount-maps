@@ -76,6 +76,7 @@ describe('consumerSignupSchema', () => {
     email: 'ana@test.dev',
     password: 'secreta123',
     confirm: 'secreta123',
+    acceptTerms: 'on',
   };
 
   it('accepts matching passwords', () => {
@@ -91,6 +92,23 @@ describe('consumerSignupSchema', () => {
     expect(result.error?.issues[0]?.path).toEqual(['confirm']);
     expect(result.error?.issues[0]?.message).toBe(
       'Las contraseñas no coinciden.',
+    );
+  });
+});
+
+describe('consumerSignupSchema terms', () => {
+  it('requires the terms checkbox', () => {
+    const result = consumerSignupSchema.safeParse({
+      fullName: 'Ana Pérez',
+      email: 'ana@test.dev',
+      password: 'secreta123',
+      confirm: 'secreta123',
+      acceptTerms: null,
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['acceptTerms']);
+    expect(result.error?.issues[0]?.message).toBe(
+      'Debes aceptar los términos y la política de datos.',
     );
   });
 });

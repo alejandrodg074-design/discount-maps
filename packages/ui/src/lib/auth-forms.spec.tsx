@@ -15,6 +15,36 @@ describe('SignupForm', () => {
     expect(confirm?.name).toBe('confirm');
   });
 
+  it('has a required terms checkbox linking to both legal pages', () => {
+    const { container } = render(
+      <SignupForm action={noop} loginHref="/login" />,
+    );
+    const box = container.querySelector<HTMLInputElement>('#acceptTerms');
+    expect(box?.type).toBe('checkbox');
+    expect(box?.required).toBe(true);
+    const hrefs = Array.from(container.querySelectorAll('a')).map((a) =>
+      a.getAttribute('href'),
+    );
+    expect(hrefs).toContain('/terminos');
+    expect(hrefs).toContain('/privacidad');
+  });
+
+  it('links the business terms when given', () => {
+    const { getByRole } = render(
+      <SignupForm
+        action={noop}
+        loginHref="/login"
+        termsHref="/terminos-empresas"
+        termsLabel="Términos para empresas"
+      />,
+    );
+    expect(
+      getByRole('link', { name: 'Términos para empresas' }).getAttribute(
+        'href',
+      ),
+    ).toBe('/terminos-empresas');
+  });
+
   it('shows and hides both passwords with one button', () => {
     const { container, getByRole } = render(
       <SignupForm action={noop} loginHref="/login" />,

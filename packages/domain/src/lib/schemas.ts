@@ -25,9 +25,21 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
-/** Sign-up (both roles): the password is typed twice so a typo cannot lock the user out. */
+/**
+ * Sign-up (both roles): the password is typed twice so a typo cannot lock the
+ * user out, and the terms / data policy must be accepted (Ley 1581).
+ */
 export const consumerSignupSchema = z
-  .object({ fullName, email, password, confirm: z.string() })
+  .object({
+    fullName,
+    email,
+    password,
+    confirm: z.string(),
+    /** Checkbox value: only "on" (checked) passes. */
+    acceptTerms: z.literal('on', {
+      message: 'Debes aceptar los términos y la política de datos.',
+    }),
+  })
   .refine((v) => v.password === v.confirm, {
     path: ['confirm'],
     message: 'Las contraseñas no coinciden.',
