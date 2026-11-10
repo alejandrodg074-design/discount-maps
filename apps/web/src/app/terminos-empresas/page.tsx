@@ -42,7 +42,8 @@ export default function BusinessTermsPage() {
       <LegalSection title="1. Quiénes somos">
         <p>
           La App es operada por {e.name}, identificada con {e.id}, con domicilio
-          en {e.city}, dirección {e.address}, correo {mail}
+          en {e.city}
+          {e.address ? `, dirección ${e.address}` : ''}, correo {mail}
           {e.phone ? ` y teléfono ${e.phone}` : ''} («Discount Maps»,
           «nosotros»).
         </p>

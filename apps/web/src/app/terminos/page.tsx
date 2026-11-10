@@ -44,7 +44,8 @@ export default function TermsPage() {
       <LegalSection title="1. Quiénes somos">
         <p>
           La App es operada por {e.name}, identificada con {e.id}, con domicilio
-          en {e.city}, dirección {e.address}, correo{' '}
+          en {e.city}
+          {e.address ? `, dirección ${e.address}` : ''}, correo{' '}
           <a href={`mailto:${e.email}`} className="text-brand-600 underline">
             {e.email}
           </a>
