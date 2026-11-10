@@ -2,9 +2,8 @@
  * Who runs Discount Maps, as shown in the legal pages (`/terminos`,
  * `/terminos-empresas`, `/privacidad`), from the company's RUT (2026-11-10).
  * Ley 1480 de 2011 art. 50 and Decreto 1377 de 2013 art. 13 ask for name, ID,
- * address, email and phone; the owner chose not to publish the street address
- * or a phone for now (`null` leaves them out of the text; the city stays).
- * Registered address on the RUT: Carrera 62 Bis # 9-71, Cali.
+ * address, email and phone, so both are published (owner, 2026-11-10: "if the
+ * law requires them, include them"). `null` would leave a field out.
  */
 export const LEGAL_ENTITY: {
   name: string;
@@ -17,9 +16,9 @@ export const LEGAL_ENTITY: {
   name: 'DISCOUNT MAPS S.A.S.',
   id: 'NIT 902.124.873-8',
   city: 'Cali, Valle del Cauca, Colombia',
-  address: null,
+  address: 'Carrera 62 Bis # 9-71',
   email: 'discountmaps1@gmail.com',
-  phone: null,
+  phone: '+57 316 831 6181',
 };
 
 /**
