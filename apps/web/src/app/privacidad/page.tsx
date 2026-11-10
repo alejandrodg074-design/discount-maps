@@ -34,8 +34,8 @@ export default function PrivacyPage() {
 
       <LegalSection title="1. Responsable del tratamiento">
         <p>
-          {e.name}, identificada con {e.id}, domicilio en {e.city}, dirección{' '}
-          {e.address}, correo {mail}
+          {e.name}, identificada con {e.id}, domicilio en {e.city}
+          {e.address ? `, dirección ${e.address}` : ''}, correo {mail}
           {e.phone ? `, teléfono ${e.phone}` : ''}.
         </p>
       </LegalSection>

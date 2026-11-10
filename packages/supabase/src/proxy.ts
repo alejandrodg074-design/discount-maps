@@ -11,6 +11,8 @@ export interface SessionInfo {
   userId: string | null;
   /** Role carried in the JWT `app_metadata`, or null when signed out. */
   role: UserRole | null;
+  /** `user_metadata.terms_version` in the JWT: the legal version last accepted. */
+  termsVersion: string | null;
   /** Build a redirect that keeps the refreshed cookies. */
   redirectTo: (pathOrUrl: string) => NextResponse;
 }
@@ -61,6 +63,10 @@ export async function updateSession(
     response,
     userId: claims?.sub ?? null,
     role: roleFromClaims(claims),
+    termsVersion:
+      typeof claims?.user_metadata?.terms_version === 'string'
+        ? claims.user_metadata.terms_version
+        : null,
     redirectTo,
   };
 }
