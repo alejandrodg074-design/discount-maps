@@ -97,6 +97,8 @@ export interface SignupFormProps {
   /** Legal pages linked from the acceptance checkbox (open in a new tab). */
   termsHref?: string;
   privacyHref?: string;
+  /** Link text for the terms ("Términos y condiciones" / "Términos para empresas"). */
+  termsLabel?: string;
 }
 
 export function SignupForm({
@@ -107,6 +109,7 @@ export function SignupForm({
   submitLabel = 'Crear cuenta',
   termsHref = '/terminos',
   privacyHref = '/privacidad',
+  termsLabel = 'Términos y condiciones',
 }: SignupFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
   const [showPassword, setShowPassword] = useState(false);
@@ -160,6 +163,7 @@ export function SignupForm({
         {children}
         <TermsCheckbox
           termsHref={termsHref}
+          termsLabel={termsLabel}
           privacyHref={privacyHref}
           error={state.fieldErrors?.acceptTerms}
         />
@@ -191,10 +195,12 @@ export function SignupForm({
  */
 function TermsCheckbox({
   termsHref,
+  termsLabel,
   privacyHref,
   error,
 }: {
   termsHref: string;
+  termsLabel: string;
   privacyHref: string;
   error?: string;
 }) {
@@ -214,7 +220,7 @@ function TermsCheckbox({
         <span>
           Acepto los{' '}
           <a href={termsHref} target="_blank" rel="noreferrer" className={link}>
-            Términos y condiciones
+            {termsLabel}
           </a>{' '}
           y autorizo el tratamiento de mis datos según la{' '}
           <a

@@ -34,8 +34,9 @@ export default function PrivacyPage() {
 
       <LegalSection title="1. Responsable del tratamiento">
         <p>
-          {e.name}, identificado(a) con {e.id}, domicilio en {e.city}, dirección{' '}
-          {e.address}, correo {mail}, teléfono {e.phone}.
+          {e.name}, identificada con {e.id}, domicilio en {e.city}, dirección{' '}
+          {e.address}, correo {mail}
+          {e.phone ? `, teléfono ${e.phone}` : ''}.
         </p>
       </LegalSection>
 
@@ -69,7 +70,8 @@ export default function PrivacyPage() {
           <strong>De los Comercios:</strong> nombre y correo de quien registra
           la cuenta, razón social, NIT, nombre comercial, categoría, logo,
           descripción, sedes (dirección, ciudad, ubicación y teléfono) y los
-          cupones que publica.
+          cupones que publica, además de las fotos y videos de sus sedes que se
+          tomen para el marketing autorizado en los Términos para empresas.
         </p>
         <p>
           No pedimos datos sensibles (como salud, origen étnico, orientación

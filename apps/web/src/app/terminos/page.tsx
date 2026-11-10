@@ -3,7 +3,6 @@ import Link from 'next/link';
 import {
   CHARGE_RETRY_DAYS,
   MAX_CHARGE_ATTEMPTS,
-  MIN_ACTIVE_COUPONS,
   TRIAL_DAYS,
   formatCop,
 } from '@org/domain';
@@ -15,10 +14,13 @@ import {
 import { subscriptionPricePesosOrNull } from '../../lib/billing';
 import { LEGAL_ENTITY } from '../../lib/legal';
 
-export const metadata: Metadata = { title: 'Términos y condiciones' };
+export const metadata: Metadata = {
+  title: 'Términos y condiciones para personas',
+};
 
 /**
- * Terms of use (Ley 1480 de 2011, Ley 527 de 1999). Numbers come from
+ * Terms of use for consumers (Ley 1480 de 2011, Ley 527 de 1999); businesses
+ * have their own page, `/terminos-empresas`. Numbers come from
  * `@org/domain` and the price from SUBSCRIPTION_PRICE_COP, so the text follows
  * the product rules. Changing the substance: bump `LEGAL_VERSION`.
  */
@@ -26,21 +28,28 @@ export default function TermsPage() {
   const price = subscriptionPricePesosOrNull();
   const e = LEGAL_ENTITY;
   return (
-    <LegalPage title="Términos y condiciones">
+    <LegalPage title="Términos y condiciones para personas">
       <p>
         Estos términos regulan el uso de Discount Maps (la «App»), disponible en
-        discountmaps.app. Al crear una cuenta declaras que los leíste y los
-        aceptas. Si no estás de acuerdo, no uses la App.
+        discountmaps.app, por parte de las personas que usan los cupones. Al
+        crear una cuenta declaras que los leíste y los aceptas. Si no estás de
+        acuerdo, no uses la App. Los negocios que publican cupones tienen sus
+        propios{' '}
+        <Link href="/terminos-empresas" className="text-brand-600 underline">
+          Términos para empresas
+        </Link>
+        .
       </p>
 
       <LegalSection title="1. Quiénes somos">
         <p>
-          La App es operada por {e.name}, identificado(a) con {e.id}, con
-          domicilio en {e.city}, dirección {e.address}, correo{' '}
+          La App es operada por {e.name}, identificada con {e.id}, con domicilio
+          en {e.city}, dirección {e.address}, correo{' '}
           <a href={`mailto:${e.email}`} className="text-brand-600 underline">
             {e.email}
-          </a>{' '}
-          y teléfono {e.phone} («Discount Maps», «nosotros»).
+          </a>
+          {e.phone ? ` y teléfono ${e.phone}` : ''} («Discount Maps»,
+          «nosotros»).
         </p>
       </LegalSection>
 
@@ -65,9 +74,9 @@ export default function TermsPage() {
       <LegalSection title="3. Cuentas">
         <LegalList>
           <li>
-            Hay dos tipos de cuenta: <strong>Persona</strong>, para usar los
-            cupones, y <strong>Empresa</strong>, para publicar cupones de un
-            Comercio. Cada cuenta tiene un solo tipo.
+            Estos términos aplican a las cuentas de tipo{' '}
+            <strong>Persona</strong>, que sirven para usar los cupones. Cada
+            cuenta tiene un solo tipo.
           </li>
           <li>
             Debes ser mayor de 18 años y tener capacidad legal para contratar.
@@ -83,7 +92,7 @@ export default function TermsPage() {
         </LegalList>
       </LegalSection>
 
-      <LegalSection title="4. Suscripción para personas">
+      <LegalSection title="4. Suscripción">
         <LegalList>
           <li>
             Para usar los cupones necesitas una suscripción mensual
@@ -193,44 +202,7 @@ export default function TermsPage() {
         </LegalList>
       </LegalSection>
 
-      <LegalSection title="7. Condiciones para Comercios">
-        <LegalList>
-          <li>
-            El registro y la publicación de cupones no tienen costo por ahora.
-            Si esto cambia, avisaremos con al menos 30 días de anticipación.
-          </li>
-          <li>
-            El Comercio debe registrar datos verdaderos (razón social, NIT,
-            nombre comercial, sedes) y quien lo registra declara tener
-            facultades para representarlo. Discount Maps verifica cada Comercio
-            antes de publicarlo y puede rechazarlo.
-          </li>
-          <li>
-            Un Comercio aparece en el mapa solo cuando está verificado y tiene
-            al menos {MIN_ACTIVE_COUPONS} cupones vigentes, y no puede bajar de
-            ese mínimo mientras esté publicado.
-          </li>
-          <li>
-            El Comercio se obliga a aplicar sus cupones vigentes a toda persona
-            que presente un código QR válido, en las condiciones publicadas, y a
-            cumplir las normas de protección al consumidor, publicidad e
-            impuestos que le apliquen.
-          </li>
-          <li>
-            El Comercio garantiza que tiene derecho a usar los logos, imágenes y
-            textos que publica, y nos autoriza a mostrarlos en la App y en
-            nuestras redes para promocionarlo, sin costo, mientras esté
-            registrado.
-          </li>
-          <li>
-            Con el código QR el Comercio conoce el nombre de la persona que usa
-            el cupón. Solo puede usar ese dato para validar el cupón y debe
-            tratarlo conforme a la Ley 1581 de 2012.
-          </li>
-        </LegalList>
-      </LegalSection>
-
-      <LegalSection title="8. Usos prohibidos">
+      <LegalSection title="7. Usos prohibidos">
         <p>No está permitido:</p>
         <LegalList>
           <li>
@@ -255,17 +227,16 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Propiedad intelectual">
+      <LegalSection title="8. Propiedad intelectual">
         <p>
           La marca Discount Maps, el diseño y el software de la App nos
           pertenecen o los usamos con autorización. Te damos permiso para usar
-          la App de forma personal y no comercial (o, si eres Comercio, para
-          administrar tus cupones), sin copiarla, modificarla ni explotarla de
-          otra forma.
+          la App de forma personal y no comercial, sin copiarla, modificarla ni
+          explotarla de otra forma.
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Responsabilidad">
+      <LegalSection title="9. Responsabilidad">
         <p>
           Hacemos nuestro mejor esfuerzo para que la App funcione de forma
           continua y segura, pero puede tener interrupciones por mantenimiento,
@@ -276,7 +247,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Cierre de la cuenta">
+      <LegalSection title="10. Cierre de la cuenta">
         <p>
           Puedes pedir el cierre de tu cuenta y la eliminación de tus datos en
           cualquier momento escribiendo a {e.email}. Si tienes una suscripción
@@ -286,7 +257,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Datos personales">
+      <LegalSection title="11. Datos personales">
         <p>
           Tratamos tus datos según nuestra{' '}
           <Link href="/privacidad" className="text-brand-600 underline">
@@ -296,7 +267,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Cambios a estos términos">
+      <LegalSection title="12. Cambios a estos términos">
         <p>
           Podemos actualizar estos términos. Si el cambio es importante te
           avisaremos por correo o en la App antes de que entre en vigencia. Si
@@ -306,7 +277,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Peticiones, quejas y reclamos">
+      <LegalSection title="13. Peticiones, quejas y reclamos">
         <p>
           Escríbenos a{' '}
           <a href={`mailto:${e.email}`} className="text-brand-600 underline">
@@ -318,7 +289,7 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="15. Ley aplicable">
+      <LegalSection title="14. Ley aplicable">
         <p>
           Estos términos se rigen por las leyes de la República de Colombia,
           incluidas la Ley 1480 de 2011 (Estatuto del Consumidor) y la Ley 527

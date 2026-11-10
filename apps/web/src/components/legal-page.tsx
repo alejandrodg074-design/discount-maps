@@ -56,11 +56,16 @@ export function LegalList({ children }: { children: ReactNode }) {
 }
 
 /** "Términos y condiciones · Política de datos" links, under the contact channels. */
-export function LegalLinks() {
+export function LegalLinks({
+  termsHref = '/terminos',
+}: {
+  /** `/terminos-empresas` on the business screens. */
+  termsHref?: string;
+}) {
   const link = 'font-semibold text-brand-600';
   return (
     <p className="mt-8 text-center text-sm text-ink-muted">
-      <Link href="/terminos" className={link}>
+      <Link href={termsHref} className={link}>
         Términos y condiciones
       </Link>
       {' · '}

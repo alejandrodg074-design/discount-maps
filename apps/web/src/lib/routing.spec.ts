@@ -24,6 +24,7 @@ describe('gateRedirect, signed out', () => {
     '/empresa/registro',
     '/sin-conexion',
     '/terminos',
+    '/terminos-empresas',
     '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, signedOut)).toBeNull();
@@ -49,6 +50,7 @@ describe('gateRedirect, consumer', () => {
     '/suscripcion/tarjeta',
     '/sin-conexion',
     '/terminos',
+    '/terminos-empresas',
     '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, consumer)).toBeNull();
@@ -81,6 +83,7 @@ describe('gateRedirect, business', () => {
     '/empresa/verificar',
     '/sin-conexion',
     '/terminos',
+    '/terminos-empresas',
     '/privacidad',
   ])('lets %s through', (path) => {
     expect(gateRedirect(path, business)).toBeNull();

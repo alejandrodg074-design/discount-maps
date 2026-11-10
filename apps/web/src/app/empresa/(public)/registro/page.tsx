@@ -18,6 +18,8 @@ export default function BusinessRegisterPage() {
         action={businessSignupAction}
         loginHref="/login?next=%2Fempresa%2Finicio"
         submitLabel="Continuar"
+        termsHref="/terminos-empresas"
+        termsLabel="Términos para empresas (incluye la autorización de uso de mi marca en marketing)"
       />
       <p className="mt-6 text-center text-sm text-ink-muted">
         ¿Buscas descuentos?{' '}

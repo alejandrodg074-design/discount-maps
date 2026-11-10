@@ -24,6 +24,7 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/empresa/registro',
   '/sin-conexion',
   '/terminos',
+  '/terminos-empresas',
   '/privacidad',
 ]);
 
@@ -31,6 +32,7 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
 export const ALWAYS_OPEN_PATHS: ReadonlySet<string> = new Set([
   '/sin-conexion',
   '/terminos',
+  '/terminos-empresas',
   '/privacidad',
 ]);
 

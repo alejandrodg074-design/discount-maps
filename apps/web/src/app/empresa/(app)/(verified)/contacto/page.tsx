@@ -18,7 +18,7 @@ export default function ContactPage() {
         empresa? Escríbenos por cualquiera de estos canales.
       </p>
       <ContactLinks />
-      <LegalLinks />
+      <LegalLinks termsHref="/terminos-empresas" />
     </PageShell>
   );
 }

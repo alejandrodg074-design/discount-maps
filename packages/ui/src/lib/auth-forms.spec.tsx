@@ -29,6 +29,22 @@ describe('SignupForm', () => {
     expect(hrefs).toContain('/privacidad');
   });
 
+  it('links the business terms when given', () => {
+    const { getByRole } = render(
+      <SignupForm
+        action={noop}
+        loginHref="/login"
+        termsHref="/terminos-empresas"
+        termsLabel="Términos para empresas"
+      />,
+    );
+    expect(
+      getByRole('link', { name: 'Términos para empresas' }).getAttribute(
+        'href',
+      ),
+    ).toBe('/terminos-empresas');
+  });
+
   it('shows and hides both passwords with one button', () => {
     const { container, getByRole } = render(
       <SignupForm action={noop} loginHref="/login" />,
