@@ -1,4 +1,3 @@
-import { subscriptionAccessUntil } from '@org/domain';
 import { Button, PageShell, PasswordForm, ProfileForm, TopBar } from '@org/ui';
 import {
   getOwnSubscription,
@@ -13,6 +12,8 @@ export const dynamic = 'force-dynamic';
 
 const NOTICES: Record<string, string> = {
   ok: 'Tarjeta actualizada.',
+  agregada:
+    'Tarjeta registrada. El primer cobro será al terminar tu semana gratis.',
   reactivada: 'Suscripción reactivada. ¡Bienvenido de vuelta!',
   cobro: 'Tarjeta actualizada. Estamos procesando el cobro pendiente.',
 };
@@ -49,8 +50,9 @@ export default async function AccountPage({
           status={subscription.status}
           cardBrand={subscription.card_brand}
           cardLast4={subscription.card_last4}
+          hasCard={subscription.wompi_payment_source_id != null}
           accessUntil={
-            subscriptionAccessUntil(subscription)?.toISOString() ?? null
+            subscription.current_period_end ?? subscription.trial_ends_at
           }
           nextChargeAt={subscription.next_charge_at}
           trialEndsAt={subscription.trial_ends_at}

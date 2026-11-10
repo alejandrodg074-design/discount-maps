@@ -15,7 +15,9 @@ export interface SubscriptionCardProps {
   status: SubscriptionStatus;
   cardBrand: string | null;
   cardLast4: string | null;
-  /** ISO timestamps (already computed on the server). */
+  /** False during the free week when no card was registered yet. */
+  hasCard: boolean;
+  /** End of the paid period / trial (what is kept after canceling). ISO. */
   accessUntil: string | null;
   nextChargeAt: string | null;
   trialEndsAt: string;
@@ -40,20 +42,22 @@ function describe(p: SubscriptionCardProps): string {
   const nextCharge = formatDate(p.nextChargeAt);
   switch (p.status) {
     case 'trialing':
-      return `Tu semana gratis termina el ${formatDate(
-        p.trialEndsAt,
-      )}. Ese día haremos el primer cobro${amount}.`;
+      return p.hasCard
+        ? `Tu semana gratis termina el ${formatDate(
+            p.trialEndsAt,
+          )}. Ese día haremos el primer cobro${amount}.`
+        : `Tu semana gratis termina el ${formatDate(
+            p.trialEndsAt,
+          )}. Para seguir usando tus cupones después, agrega una tarjeta: el primer cobro${amount} será ese día.`;
     case 'active':
       return `Próximo cobro${amount}: ${nextCharge}.`;
     case 'past_due':
       if (p.pendingCharge) {
-        return `Estamos procesando el cobro${amount}${
-          until ? `. Tu acceso sigue hasta el ${until}` : ''
-        }.`;
+        return `Estamos procesando el cobro${amount}.`;
       }
-      return `No pudimos cobrar tu tarjeta. Volveremos a intentarlo el ${formatDate(
+      return `No pudimos cobrar tu tarjeta. Actualízala para seguir usando tus cupones; también lo volveremos a intentar el ${formatDate(
         p.nextChargeAt,
-      )}${until ? ` y tu acceso sigue hasta el ${until}` : ''}.`;
+      )}.`;
     case 'canceled':
       return p.accessUntil && new Date(p.accessUntil).getTime() > Date.now()
         ? `No haremos más cobros. Puedes seguir usando tus cupones hasta el ${until}.`
@@ -66,6 +70,8 @@ export function SubscriptionCard(props: SubscriptionCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const canceled = props.status === 'canceled';
+  // Free week without a card: nothing to cancel yet, the main action is adding one.
+  const cardless = props.status === 'trialing' && !props.hasCard;
 
   const cancel = () =>
     startTransition(async () => {
@@ -103,11 +109,17 @@ export function SubscriptionCard(props: SubscriptionCardProps) {
       <div className="flex flex-col gap-2">
         <Link
           href="/cuenta/tarjeta"
-          className={buttonClassName(canceled ? 'primary' : 'secondary')}
+          className={buttonClassName(
+            canceled || cardless ? 'primary' : 'secondary',
+          )}
         >
-          {canceled ? 'Reactivar suscripción' : 'Actualizar tarjeta'}
+          {canceled
+            ? 'Reactivar suscripción'
+            : cardless
+              ? 'Agregar tarjeta'
+              : 'Actualizar tarjeta'}
         </Link>
-        {!canceled && !confirming ? (
+        {!canceled && !cardless && !confirming ? (
           <Button
             type="button"
             variant="ghost"

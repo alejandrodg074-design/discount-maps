@@ -10,18 +10,26 @@ export interface SubscriptionLike {
   status: SubscriptionStatus;
   trial_ends_at: string | Date;
   current_period_end: string | Date | null;
+  /** Present when a card is registered (the free week can run without one). */
+  wompi_payment_source_id?: number | null;
 }
 
 /** Days of free usage before the first charge. */
 export const TRIAL_DAYS = 7;
-/** Days a past_due subscription keeps access while we retry the card. */
-export const PAST_DUE_GRACE_DAYS = 5;
+/**
+ * Hours a renewal that is due but not attempted yet keeps access: the billing
+ * run is hourly, so a paying customer is not locked out while it gets to them.
+ * Only with a card. A failed charge (past_due) has no grace: access ends at
+ * once (owner, 2026-10-29), and the retries / a new card restore it.
+ */
+export const RENEWAL_WINDOW_HOURS = 2;
 /** Charge attempts before a subscription is canceled. */
 export const MAX_CHARGE_ATTEMPTS = 3;
 /** Days between charge attempts. */
 export const CHARGE_RETRY_DAYS = 2;
 
 const DAY_MS = 86_400_000;
+const HOUR_MS = 3_600_000;
 
 function toDate(value: string | Date | null | undefined): Date | null {
   if (value == null) return null;
@@ -36,15 +44,14 @@ export function addDays(date: Date, days: number): Date {
 export function subscriptionAccessUntil(s: SubscriptionLike): Date | null {
   const trialEnd = toDate(s.trial_ends_at);
   const periodEnd = toDate(s.current_period_end);
+  const renewal = (d: Date | null) =>
+    d ? new Date(d.getTime() + RENEWAL_WINDOW_HOURS * HOUR_MS) : null;
   switch (s.status) {
     case 'trialing':
-      return trialEnd;
+      return s.wompi_payment_source_id != null ? renewal(trialEnd) : trialEnd;
     case 'active':
-      return periodEnd;
-    case 'past_due': {
-      const base = periodEnd ?? trialEnd;
-      return base ? addDays(base, PAST_DUE_GRACE_DAYS) : null;
-    }
+      return renewal(periodEnd);
+    case 'past_due':
     case 'canceled':
       return periodEnd ?? trialEnd;
   }

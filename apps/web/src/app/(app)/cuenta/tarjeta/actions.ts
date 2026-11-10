@@ -70,9 +70,14 @@ export async function updateCardAction(
     return { error: 'No pudimos guardar la tarjeta. Intenta de nuevo.' };
   }
 
-  let outcome: 'ok' | 'reactivada' | 'cobro' = 'ok';
+  let outcome: 'ok' | 'agregada' | 'reactivada' | 'cobro' = 'ok';
   if (patch) {
-    outcome = subscription.status === 'canceled' ? 'reactivada' : 'ok';
+    outcome =
+      subscription.status === 'canceled'
+        ? 'reactivada'
+        : subscription.wompi_payment_source_id == null
+          ? 'agregada'
+          : 'ok';
     const dueNow =
       patch.next_charge_at !== null &&
       patch.next_charge_at.getTime() <= now.getTime();

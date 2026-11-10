@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getOwnSubscription } from '../../lib/billing';
 import { getSession } from '../../lib/session';
 
-/** Card-capture step: needs a session, must not have a subscription yet. */
+/** Free-week start: needs a session, must not have a subscription yet. */
 export default async function SubscribeLayout({
   children,
 }: {

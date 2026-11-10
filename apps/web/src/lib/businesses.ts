@@ -8,7 +8,7 @@ export type PublicBusiness = Views<'businesses_public'>;
 export type BranchWithCoords = Views<'branches_with_coords'>;
 export type Coupon = Tables<'coupons'>;
 
-/** A business as the consumer map sees it (verified and >= 3 live coupons), or null. */
+/** A business as the consumer map sees it (verified and >= MIN_ACTIVE_COUPONS live coupons), or null. */
 export async function getPublicBusiness(
   id: string,
 ): Promise<PublicBusiness | null> {

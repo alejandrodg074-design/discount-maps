@@ -8,6 +8,7 @@ import {
   fieldErrorMap,
   LOGO_MAX_BYTES,
   LOGO_MIME_TYPES,
+  MIN_ACTIVE_COUPONS,
   MIN_ACTIVE_COUPONS_ERROR,
 } from '@org/domain';
 import { getOwnBusiness, getSession } from '../../../../../lib/business';
@@ -43,7 +44,7 @@ function friendlyDbError(error: {
   if (error.message.includes(MIN_ACTIVE_COUPONS_ERROR)) {
     return (
       error.hint ||
-      'Debes mantener al menos 3 cupones activos. Activa otro antes de desactivar este.'
+      `Debes mantener al menos ${MIN_ACTIVE_COUPONS} cupones activos. Activa otro antes de desactivar este.`
     );
   }
   return 'No pudimos guardar los cambios. Intenta de nuevo.';

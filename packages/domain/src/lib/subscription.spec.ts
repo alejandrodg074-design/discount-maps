@@ -1,7 +1,7 @@
 import {
   addDays,
   isEntitled,
-  PAST_DUE_GRACE_DAYS,
+  RENEWAL_WINDOW_HOURS,
   subscriptionAccessUntil,
   type SubscriptionLike,
 } from './subscription';
@@ -9,6 +9,8 @@ import {
 const NOW = new Date('2026-09-20T12:00:00Z');
 const YESTERDAY = addDays(NOW, -1);
 const TOMORROW = addDays(NOW, 1);
+const plusWindow = (d: Date) =>
+  new Date(d.getTime() + RENEWAL_WINDOW_HOURS * 3_600_000);
 
 function sub(partial: Partial<SubscriptionLike>): SubscriptionLike {
   return {
@@ -20,26 +22,34 @@ function sub(partial: Partial<SubscriptionLike>): SubscriptionLike {
 }
 
 describe('subscriptionAccessUntil', () => {
-  it('trialing ends at trial_ends_at', () => {
+  it('a free week without a card ends exactly at trial_ends_at', () => {
     expect(subscriptionAccessUntil(sub({ status: 'trialing' }))).toEqual(
       TOMORROW,
     );
   });
 
-  it('active ends at current_period_end', () => {
+  it('a trial with a card keeps the renewal window for the first charge', () => {
+    expect(
+      subscriptionAccessUntil(
+        sub({ status: 'trialing', wompi_payment_source_id: 7 }),
+      ),
+    ).toEqual(plusWindow(TOMORROW));
+  });
+
+  it('active ends at current_period_end plus the renewal window', () => {
     expect(
       subscriptionAccessUntil(
         sub({ status: 'active', current_period_end: TOMORROW }),
       ),
-    ).toEqual(TOMORROW);
+    ).toEqual(plusWindow(TOMORROW));
   });
 
-  it('past_due adds the grace period to the period end', () => {
+  it('past_due has no grace: access ends at the period end', () => {
     expect(
       subscriptionAccessUntil(
         sub({ status: 'past_due', current_period_end: YESTERDAY }),
       ),
-    ).toEqual(addDays(YESTERDAY, PAST_DUE_GRACE_DAYS));
+    ).toEqual(YESTERDAY);
   });
 
   it('past_due falls back to trial end when there was never a paid period', () => {
@@ -47,7 +57,7 @@ describe('subscriptionAccessUntil', () => {
       subscriptionAccessUntil(
         sub({ status: 'past_due', trial_ends_at: YESTERDAY }),
       ),
-    ).toEqual(addDays(YESTERDAY, PAST_DUE_GRACE_DAYS));
+    ).toEqual(YESTERDAY);
   });
 
   it('canceled keeps access until the paid period ends', () => {
@@ -80,17 +90,17 @@ describe('isEntitled', () => {
       false,
     ],
     [
-      'past_due inside grace',
+      'past_due right after a failed charge',
       sub({ status: 'past_due', current_period_end: YESTERDAY }),
-      true,
+      false,
     ],
     [
-      'past_due after grace',
+      'active, renewal due an hour ago (not charged yet)',
       sub({
-        status: 'past_due',
-        current_period_end: addDays(NOW, -PAST_DUE_GRACE_DAYS - 1),
+        status: 'active',
+        current_period_end: new Date(NOW.getTime() - 3_600_000),
       }),
-      false,
+      true,
     ],
     [
       'canceled before period end',

@@ -34,15 +34,14 @@ insert into public.coupons (id, business_id, title, discount_type, discount_valu
   ('00000000-0000-4000-8000-0000000000e2', '00000000-0000-4000-8000-0000000000d1', 'A diez',   'percentage', 10),
   ('00000000-0000-4000-8000-0000000000e3', '00000000-0000-4000-8000-0000000000d1', 'A fijo',   'fixed', 4000);
 
--- Business B (food): 500 m away but only 2 live coupons.
+-- Business B (food): 500 m away but only 1 live coupon.
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000043","role":"authenticated"}';
 insert into public.businesses (id, owner_id, legal_name, display_name, nit, category)
 values ('00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-000000000043',
         'Postres B SAS', 'Postres B', '900000005-2', 'food');
 select public.add_branch('00000000-0000-4000-8000-0000000000d2', 'B única', 'Cll 63 # 7-1', 'Bogotá', 4.6531, -74.0628);
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
-  ('00000000-0000-4000-8000-0000000000e4', '00000000-0000-4000-8000-0000000000d2', 'B uno', 'percentage', 15),
-  ('00000000-0000-4000-8000-0000000000e5', '00000000-0000-4000-8000-0000000000d2', 'B dos', 'bogo', null);
+  ('00000000-0000-4000-8000-0000000000e4', '00000000-0000-4000-8000-0000000000d2', 'B uno', 'percentage', 15);
 
 -- Business C (nightlife): ~2 km away; best coupon 50 %.
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000044","role":"authenticated"}';
@@ -70,7 +69,7 @@ select is((select count(*) from public.nearby_businesses(4.6486, -74.0628, null,
           1, 'verified business with 3 live coupons is listed (near branch only)');
 select is((select count(*) from public.nearby_businesses(4.6486, -74.0628, null, 5000, 'distance', 50)
             where business_id = '00000000-0000-4000-8000-0000000000d2')::int,
-          0, 'business with only 2 live coupons is hidden');
+          0, 'business with only 1 live coupon is hidden');
 select is((select count(*) from public.nearby_businesses(4.6486, -74.0628, null, 50000, 'distance', 50)
             where business_id = '00000000-0000-4000-8000-0000000000d1')::int,
           2, 'a larger radius includes the far branch');
@@ -97,14 +96,14 @@ select is((with r as (select row_number() over () as rn, business_id
             order by rn limit 1),
           '00000000-0000-4000-8000-0000000000d3', 'discount sort puts the best discount first');
 
--- B publishes a third coupon and becomes visible
+-- B publishes a second coupon and becomes visible
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000043","role":"authenticated"}';
 insert into public.coupons (id, business_id, title, discount_type, discount_value) values
-  ('00000000-0000-4000-8000-0000000000e9', '00000000-0000-4000-8000-0000000000d2', 'B tres', 'percentage', 5);
+  ('00000000-0000-4000-8000-0000000000e9', '00000000-0000-4000-8000-0000000000d2', 'B dos', 'percentage', 5);
 set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000041","role":"authenticated"}';
 select is((select count(*) from public.nearby_businesses(4.6486, -74.0628, null, 5000, 'distance', 50)
             where business_id = '00000000-0000-4000-8000-0000000000d2')::int,
-          1, 'the third live coupon makes the business visible');
+          1, 'the second live coupon makes the business visible');
 
 select * from finish();
 rollback;
