@@ -147,3 +147,42 @@ describe('safeNextForRole', () => {
     expect(safeNextForRole(value, 'consumer')).toBe('/mapas');
   });
 });
+
+describe('gateRedirect, terms not accepted yet', () => {
+  const pending = (role: UserRole) => ({
+    signedIn: true,
+    role,
+    termsAccepted: false,
+  });
+
+  it.each([
+    ['consumer', '/mapas', '/aceptar-terminos?next=%2Fmapas'],
+    [
+      'business',
+      '/empresa/inicio',
+      '/aceptar-terminos?next=%2Fempresa%2Finicio',
+    ],
+  ] as const)('sends a %s on %s to accept the terms', (role, path, target) => {
+    expect(gateRedirect(path, pending(role))).toBe(target);
+  });
+
+  it('lets them read the terms and stay on the acceptance page', () => {
+    expect(gateRedirect('/aceptar-terminos', pending('business'))).toBeNull();
+    expect(gateRedirect('/terminos-empresas', pending('business'))).toBeNull();
+    expect(gateRedirect('/terminos', pending('consumer'))).toBeNull();
+  });
+
+  it('never asks admins', () => {
+    expect(gateRedirect('/admin', pending('admin'))).toBeNull();
+  });
+
+  it('sends users who already accepted away from the acceptance page', () => {
+    expect(
+      gateRedirect('/aceptar-terminos', {
+        signedIn: true,
+        role: 'consumer',
+        termsAccepted: true,
+      }),
+    ).toBe('/mapas');
+  });
+});

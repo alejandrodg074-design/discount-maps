@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@org/supabase/proxy';
+import { LEGAL_VERSION } from './lib/legal';
 import { gateRedirect } from './lib/routing';
 
 /**
@@ -8,7 +9,8 @@ import { gateRedirect } from './lib/routing';
  * merchants stay inside `/empresa`, admins go anywhere.
  */
 export async function proxy(request: NextRequest) {
-  const { response, userId, role, redirectTo } = await updateSession(request);
+  const { response, userId, role, termsVersion, redirectTo } =
+    await updateSession(request);
   const { pathname } = request.nextUrl;
 
   // Auth callback / sign-out and API routes manage their own session handling.
@@ -16,7 +18,11 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  const target = gateRedirect(pathname, { signedIn: Boolean(userId), role });
+  const target = gateRedirect(pathname, {
+    signedIn: Boolean(userId),
+    role,
+    termsAccepted: termsVersion === LEGAL_VERSION,
+  });
   return target ? redirectTo(target) : response;
 }
 

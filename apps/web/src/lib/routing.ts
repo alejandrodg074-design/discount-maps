@@ -14,6 +14,8 @@ import type { UserRole } from '@org/supabase';
 export const CONSUMER_HOME = '/mapas';
 export const BUSINESS_HOME = '/empresa/inicio';
 export const ADMIN_HOME = '/admin';
+/** Where signed-in users accept a new version of the terms. */
+export const ACCEPT_TERMS_PATH = '/aceptar-terminos';
 
 /** Reachable without a session. */
 export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
@@ -71,7 +73,16 @@ export function homeForRole(role: UserRole | null): string {
  */
 export function gateRedirect(
   pathname: string,
-  session: { signedIn: boolean; role: UserRole | null },
+  session: {
+    signedIn: boolean;
+    role: UserRole | null;
+    /**
+     * False when a consumer or merchant has not accepted the current terms
+     * (`LEGAL_VERSION`): they are sent to `ACCEPT_TERMS_PATH` first. Omitted =
+     * accepted. Admins are never asked.
+     */
+    termsAccepted?: boolean;
+  },
 ): string | null {
   if (!session.signedIn) {
     if (PUBLIC_PATHS.has(pathname)) return null;
@@ -81,7 +92,16 @@ export function gateRedirect(
   if (ALWAYS_OPEN_PATHS.has(pathname)) return null;
 
   const { role } = session;
-  if (SIGNED_OUT_ONLY_PATHS.has(pathname)) return homeForRole(role);
+  const mustAccept = session.termsAccepted === false && role !== 'admin';
+  if (pathname === ACCEPT_TERMS_PATH) {
+    return mustAccept ? null : homeForRole(role);
+  }
+  if (SIGNED_OUT_ONLY_PATHS.has(pathname)) {
+    return mustAccept ? ACCEPT_TERMS_PATH : homeForRole(role);
+  }
+  if (mustAccept) {
+    return `${ACCEPT_TERMS_PATH}?next=${encodeURIComponent(pathname)}`;
+  }
 
   // Merchants only use the business area.
   if (role === 'business' && !isBusinessPath(pathname)) return BUSINESS_HOME;
