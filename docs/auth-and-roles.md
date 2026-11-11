@@ -53,6 +53,8 @@ Trial gate: `(app)/layout.tsx` looks up the consumer's `subscriptions` row (`get
 
 Password change (`changePasswordAction` in the consumer and merchant `cuenta/actions.ts`) calls `supabase.auth.updateUser({ password })` on the user-session client; Supabase rejects reusing the current password ("debe ser diferente"). Email changes are not self-service in the MVP.
 
+Forgotten password (2026-11-11): `/login` links "¿Olvidaste tu contraseña?" to `/recuperar` (signed-out only, `ForgotPasswordForm`). `forgotPasswordAction` calls `resetPasswordForEmail` with `redirectTo` `/auth/callback?next=/nueva-contrasena` and always answers the same message, so the form does not reveal which emails exist. The callback exchanges the code (session = the recovery user) and `safeNextForRole` keeps `/nueva-contrasena`; `gateRedirect` lets that path through for every signed-in role before the terms gate (signed out → `/login?next=`). `newPasswordAction` (`passwordChangeSchema`) calls `updateUser({ password })` and goes to `homeForRole`. An expired or used link → `/login?error=enlace`. The Supabase "Reset password" email template is set by the owner in the dashboard (Spanish copy).
+
 ## Auth flows
 
 - Server actions in `src/app/auth/actions.ts`: `loginAction`, `signupAction` (consumer, `/registro`), `businessSignupAction` (merchant, `/empresa/registro`; lands on `/empresa/onboarding`), `googleAction` (callback `next=/inicio`), `signOutAction`. They validate with zod from `@org/domain`, return `AuthActionState` (`{ error, fieldErrors, values }`) and `redirect()` on success.

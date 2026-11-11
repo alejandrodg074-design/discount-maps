@@ -16,12 +16,20 @@ export const BUSINESS_HOME = '/empresa/inicio';
 export const ADMIN_HOME = '/admin';
 /** Where signed-in users accept a new version of the terms. */
 export const ACCEPT_TERMS_PATH = '/aceptar-terminos';
+/** "¿Olvidaste tu contraseña?": asks for the email (signed out). */
+export const FORGOT_PASSWORD_PATH = '/recuperar';
+/**
+ * Landing of the recovery email (via /auth/callback): sets the new password.
+ * Open to any signed-in role, before the terms gate.
+ */
+export const NEW_PASSWORD_PATH = '/nueva-contrasena';
 
 /** Reachable without a session. */
 export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/',
   '/login',
   '/registro',
+  '/recuperar',
   '/empresa',
   '/empresa/registro',
   '/sin-conexion',
@@ -43,6 +51,7 @@ export const SIGNED_OUT_ONLY_PATHS: ReadonlySet<string> = new Set([
   '/',
   '/login',
   '/registro',
+  '/recuperar',
   '/empresa',
   '/empresa/registro',
 ]);
@@ -90,6 +99,7 @@ export function gateRedirect(
   }
 
   if (ALWAYS_OPEN_PATHS.has(pathname)) return null;
+  if (pathname === NEW_PASSWORD_PATH) return null;
 
   const { role } = session;
   const mustAccept = session.termsAccepted === false && role !== 'admin';

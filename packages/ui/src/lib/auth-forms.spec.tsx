@@ -1,5 +1,10 @@
 import { fireEvent, render } from '@testing-library/react';
-import { LoginForm, SignupForm } from './auth-forms';
+import {
+  ForgotPasswordForm,
+  LoginForm,
+  NewPasswordForm,
+  SignupForm,
+} from './auth-forms';
 
 const noop = async () => ({});
 
@@ -75,5 +80,38 @@ describe('LoginForm', () => {
     expect(password()).toBe('password');
     fireEvent.click(getByRole('button', { name: 'Mostrar contraseña' }));
     expect(password()).toBe('text');
+  });
+});
+
+describe('password recovery', () => {
+  it('login links to "¿Olvidaste tu contraseña?"', () => {
+    const { getByRole } = render(
+      <LoginForm action={noop} registerHref="/registro" />,
+    );
+    expect(
+      getByRole('link', { name: '¿Olvidaste tu contraseña?' }).getAttribute(
+        'href',
+      ),
+    ).toBe('/recuperar');
+  });
+
+  it('asks for the email', () => {
+    const { container } = render(
+      <ForgotPasswordForm action={noop} loginHref="/login" />,
+    );
+    expect(container.querySelector<HTMLInputElement>('#email')?.type).toBe(
+      'email',
+    );
+  });
+
+  it('asks for the new password twice and can reveal both', () => {
+    const { container, getByRole } = render(<NewPasswordForm action={noop} />);
+    fireEvent.click(getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(container.querySelector<HTMLInputElement>('#password')?.type).toBe(
+      'text',
+    );
+    expect(container.querySelector<HTMLInputElement>('#confirm')?.type).toBe(
+      'text',
+    );
   });
 });
