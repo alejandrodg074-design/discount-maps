@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { roleFromClaims } from '@org/supabase';
 import { createServerSupabase } from '@org/supabase/server';
-import { safeNextForRole } from '../../../lib/routing';
+import { NEW_PASSWORD_PATH, safeNextForRole } from '../../../lib/routing';
 
 /**
  * OAuth / email-confirmation landing: exchanges the code for a session, then
@@ -22,5 +22,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  // An expired or reused recovery link gets its own message on /login.
+  const recovery = searchParams.get('next') === NEW_PASSWORD_PATH;
+  return NextResponse.redirect(
+    `${origin}/login?error=${recovery ? 'enlace' : 'auth'}`,
+  );
 }

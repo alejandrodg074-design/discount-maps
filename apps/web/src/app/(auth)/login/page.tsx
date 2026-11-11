@@ -8,6 +8,8 @@ const MESSAGES: Record<string, string> = {
 };
 const ERRORS: Record<string, string> = {
   auth: 'No pudimos iniciar tu sesión. Intenta de nuevo.',
+  enlace:
+    'El enlace para cambiar la contraseña venció o ya se usó. Pide uno nuevo en "¿Olvidaste tu contraseña?".',
   google: 'No pudimos conectar con Google. Intenta de nuevo.',
 };
 

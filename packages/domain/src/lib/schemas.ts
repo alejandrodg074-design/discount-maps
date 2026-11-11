@@ -200,3 +200,6 @@ export const passwordChangeSchema = z
     message: 'Las contraseñas no coinciden.',
   });
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
+
+/** "¿Olvidaste tu contraseña?": the account's email. */
+export const passwordResetRequestSchema = z.object({ email });

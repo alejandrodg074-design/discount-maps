@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { Button } from './button';
+import { FormNotice } from './account-forms';
 import { FormError, InputField } from './field';
 
 export interface AuthActionState {
@@ -27,6 +28,8 @@ export interface LoginFormProps {
   registerHref: string;
   /** Relative path to go to after login (from ?next=). */
   next?: string;
+  /** "¿Olvidaste tu contraseña?" target. */
+  forgotHref?: string;
 }
 
 export function LoginForm({
@@ -34,6 +37,7 @@ export function LoginForm({
   googleAction,
   registerHref,
   next,
+  forgotHref = '/recuperar',
 }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(action, initial);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,11 +64,20 @@ export function LoginForm({
           required
           error={state.fieldErrors?.password}
         />
-        <ShowPasswordToggle
-          shown={showPassword}
-          onToggle={() => setShowPassword((v) => !v)}
-          controls="password"
-        />
+        <div className="-mt-2 flex items-center justify-between gap-3">
+          <ShowPasswordToggle
+            shown={showPassword}
+            onToggle={() => setShowPassword((v) => !v)}
+            controls="password"
+            className="mt-0"
+          />
+          <a
+            href={forgotHref}
+            className="py-1 text-sm font-semibold text-brand-600"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
         <FormError message={state.error} />
         <Button type="submit" block loading={pending}>
           Iniciar sesión
@@ -248,11 +261,13 @@ function ShowPasswordToggle({
   shown,
   onToggle,
   controls,
+  className = '-mt-2',
 }: {
   shown: boolean;
   onToggle: () => void;
   /** Space-separated ids of the inputs it reveals. */
   controls: string;
+  className?: string;
 }) {
   return (
     <button
@@ -260,7 +275,7 @@ function ShowPasswordToggle({
       aria-pressed={shown}
       aria-controls={controls}
       onClick={onToggle}
-      className="-mt-2 inline-flex items-center gap-2 self-start py-1 text-sm font-semibold text-brand-600"
+      className={`${className} inline-flex items-center gap-2 self-start py-1 text-sm font-semibold text-brand-600`}
     >
       <EyeIcon crossed={shown} />
       {shown ? 'Ocultar contraseña' : 'Mostrar contraseña'}
@@ -308,5 +323,83 @@ function GoogleIcon() {
         d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.7-3.9-13.6-9.5l-7.8 6C6.5 42.6 14.6 48 24 48z"
       />
     </svg>
+  );
+}
+
+/** "¿Olvidaste tu contraseña?": asks for the email the recovery link goes to. */
+export function ForgotPasswordForm({
+  action,
+  loginHref,
+}: {
+  action: AuthFormAction;
+  loginHref: string;
+}) {
+  const [state, formAction, pending] = useActionState(action, initial);
+  return (
+    <div className="flex flex-col gap-6">
+      <form action={formAction} className="flex flex-col gap-4" noValidate>
+        <InputField
+          id="email"
+          name="email"
+          type="email"
+          label="Correo de tu cuenta"
+          autoComplete="email"
+          inputMode="email"
+          required
+          error={state.fieldErrors?.email}
+        />
+        <FormNotice message={state.message} />
+        <FormError message={state.error} />
+        <Button type="submit" block loading={pending}>
+          Enviar enlace
+        </Button>
+      </form>
+      <p className="text-center text-sm text-ink-muted">
+        ¿La recordaste?{' '}
+        <a href={loginHref} className="font-semibold text-brand-600">
+          Iniciar sesión
+        </a>
+      </p>
+    </div>
+  );
+}
+
+/** Sets a new password after the recovery link (typed twice, can be shown). */
+export function NewPasswordForm({ action }: { action: AuthFormAction }) {
+  const [state, formAction, pending] = useActionState(action, initial);
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <form action={formAction} className="flex flex-col gap-4" noValidate>
+      <InputField
+        id="password"
+        name="password"
+        type={showPassword ? 'text' : 'password'}
+        label="Contraseña nueva"
+        hint="Mínimo 8 caracteres."
+        autoComplete="new-password"
+        minLength={8}
+        required
+        error={state.fieldErrors?.password}
+      />
+      <InputField
+        id="confirm"
+        name="confirm"
+        type={showPassword ? 'text' : 'password'}
+        label="Confirmar contraseña"
+        hint="Escríbela de nuevo."
+        autoComplete="new-password"
+        required
+        error={state.fieldErrors?.confirm}
+      />
+      <ShowPasswordToggle
+        shown={showPassword}
+        onToggle={() => setShowPassword((v) => !v)}
+        controls="password confirm"
+      />
+      <FormError message={state.error} />
+      <Button type="submit" block loading={pending}>
+        Guardar contraseña
+      </Button>
+    </form>
   );
 }

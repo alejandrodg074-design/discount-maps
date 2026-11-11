@@ -1,12 +1,24 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { consumerSignupSchema, fieldErrorMap, loginSchema } from '@org/domain';
+import {
+  consumerSignupSchema,
+  fieldErrorMap,
+  loginSchema,
+  passwordChangeSchema,
+  passwordResetRequestSchema,
+} from '@org/domain';
 import { roleFromClaims } from '@org/supabase';
 import { createServerSupabase } from '@org/supabase/server';
 import type { AuthActionState } from '@org/ui';
 import { LEGAL_VERSION } from '../../lib/legal';
-import { CONSUMER_HOME, safeNextForRole } from '../../lib/routing';
+import { getSession } from '../../lib/session';
+import {
+  CONSUMER_HOME,
+  homeForRole,
+  NEW_PASSWORD_PATH,
+  safeNextForRole,
+} from '../../lib/routing';
 
 /** Where a new merchant goes right after creating the account. */
 const BUSINESS_ONBOARDING = '/empresa/onboarding';
@@ -127,4 +139,61 @@ export async function signOutAction(): Promise<void> {
   const supabase = await createServerSupabase();
   await supabase.auth.signOut();
   redirect('/');
+}
+
+/**
+ * "¿Olvidaste tu contraseña?": emails a recovery link that lands on
+ * /auth/callback → /nueva-contrasena. The answer is the same whether or not
+ * the account exists, so the form cannot be used to find registered emails.
+ */
+export async function forgotPasswordAction(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const parsed = passwordResetRequestSchema.safeParse({
+    email: formData.get('email'),
+  });
+  if (!parsed.success) {
+    return { fieldErrors: fieldErrorMap(parsed.error) };
+  }
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    parsed.data.email,
+    { redirectTo: `${appUrl()}/auth/callback?next=${NEW_PASSWORD_PATH}` },
+  );
+  if (error) {
+    // Rate limits and the like: logged, but the answer stays the same.
+    console.error('[auth] password reset email failed', error);
+  }
+  return {
+    message:
+      'Si existe una cuenta con ese correo, te enviamos un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.',
+  };
+}
+
+/** Saves the new password after the recovery link and goes home. */
+export async function newPasswordAction(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const parsed = passwordChangeSchema.safeParse({
+    password: formData.get('password'),
+    confirm: formData.get('confirm'),
+  });
+  if (!parsed.success) {
+    return { fieldErrors: fieldErrorMap(parsed.error) };
+  }
+  const { supabase, userId, role } = await getSession();
+  if (!userId) redirect('/login?error=enlace');
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+  if (error) {
+    return {
+      error: /same|different/i.test(error.message)
+        ? 'La contraseña nueva debe ser distinta a la anterior.'
+        : 'No pudimos guardar la contraseña. Intenta de nuevo.',
+    };
+  }
+  redirect(homeForRole(role));
 }

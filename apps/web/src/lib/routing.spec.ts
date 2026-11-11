@@ -186,3 +186,39 @@ describe('gateRedirect, terms not accepted yet', () => {
     ).toBe('/mapas');
   });
 });
+
+describe('gateRedirect, password recovery', () => {
+  it('lets signed-out users ask for the link, not signed-in ones', () => {
+    expect(
+      gateRedirect('/recuperar', { signedIn: false, role: null }),
+    ).toBeNull();
+    expect(
+      gateRedirect('/recuperar', { signedIn: true, role: 'consumer' }),
+    ).toBe('/mapas');
+  });
+
+  it.each(['consumer', 'business', 'admin'] as const)(
+    'opens /nueva-contrasena to a signed-in %s, even before the terms',
+    (role) => {
+      expect(
+        gateRedirect('/nueva-contrasena', {
+          signedIn: true,
+          role,
+          termsAccepted: false,
+        }),
+      ).toBeNull();
+    },
+  );
+
+  it('keeps /nueva-contrasena as the next step after the recovery link', () => {
+    expect(safeNextForRole('/nueva-contrasena', 'business')).toBe(
+      '/nueva-contrasena',
+    );
+  });
+
+  it('needs a session for /nueva-contrasena', () => {
+    expect(
+      gateRedirect('/nueva-contrasena', { signedIn: false, role: null }),
+    ).toBe('/login?next=%2Fnueva-contrasena');
+  });
+});
